@@ -1,4 +1,4 @@
-import * as db from '../database/users';
+import * as db from '../database/contacts';
 import { Contact } from '../types';
 
 export async function createContact(user: Contact): Promise<Contact> {
