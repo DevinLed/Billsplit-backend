@@ -11,12 +11,12 @@ import {
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import { createUser } from "../core";
-import { User } from "../types";
+import { createTransaction } from "../core/transactions";
+import { Transaction } from "../types";
 
 const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
-const tableName = "Users";
+const tableName = "Transactions";
 
 const createItem = async (itemData: Record<string, any>) => {
   const userId = Date.now().toString();
@@ -42,7 +42,7 @@ const createItem = async (itemData: Record<string, any>) => {
 /**
  * POST will update or create user
  */
-export async function postHandler(
+export async function postTransactionHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -72,7 +72,7 @@ export async function postHandler(
 
   // Update a user
   if (itemData.itemId) {
-    console.log(`Updating user with id: ${itemData.itemId}`);
+    console.log(`Updating transaction with id: ${itemData.itemId}`);
 
     const user = await createItem({
       ...itemData,
@@ -89,11 +89,11 @@ export async function postHandler(
 
     return res;
 
-  // Create a user
+  // Create a Transaction
   } else {
-    console.log(`Creating user`);
+    console.log(`Creating Transaction`);
 
-    const user = await createUser(itemData);
+    const user = await createTransaction(itemData);
 
     const res = {
       ...response,

@@ -1,15 +1,14 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, ScanCommand, PutCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { createUser } from '../core';
-import { User } from '../types';
-import { postHandler } from "./userPostLambda"
-import { deleteHandler } from "./userDeleteLambda"
+import { getTransaction } from '../core/transactions';
+import { Transaction } from '../types';
+import { postTransactionHandler } from "./transactionPostLambda"
 
 
 const dynamoDBClient = new DynamoDBClient({ region: 'us-east-1' });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
-const tableName = 'Users';
+const tableName = 'Transactions';
 const listItems = async () => {
   const params = {
     TableName: tableName,
@@ -22,7 +21,7 @@ const listItems = async () => {
     throw error;
   }
 };
-async function getHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+async function getTransactionHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const data = await listItems();
   return {
     statusCode: 200,
@@ -39,17 +38,11 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
   console.log('Received event:', JSON.stringify(event, null, 2));
   switch (event.httpMethod) {
     case 'GET': {
-      return getHandler(event);
-    }
-    case 'PUT': {
-      return postHandler(event);
+      return getTransactionHandler(event);
     }
     case 'POST': {
-      return postHandler(event);
+      return postTransactionHandler(event);
     }   
-    case 'DELETE': {
-      return deleteHandler(event);
-    }
     default: {
       return {
         statusCode: 404,
