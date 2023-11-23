@@ -1,19 +1,16 @@
 import { DynamoDBClient, ReturnValue } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  ScanCommand,
-  PutCommand,
-  DeleteCommand,
-  UpdateCommand
+  UpdateCommand, PutCommand
 } from "@aws-sdk/lib-dynamodb";
-import { Transaction } from '../types';
+import { Contact } from '../types';
 
 const ddb = new DynamoDBClient({ region: "us-east-1" });
 const docClient = DynamoDBDocumentClient.from(ddb);
 
-const TableName = "Transactions";
+const TableName = "Contacts";
 
-export async function createTransaction(user: User): Promise<User> {
+export async function createContact(user: Contact): Promise<Contact> {
   try {
     const command = new PutCommand({
         TableName,
@@ -28,7 +25,7 @@ export async function createTransaction(user: User): Promise<User> {
   }
 }
 
-export async function updateUser(): Promise<User> {
+export async function updateContact(user: Contact): Promise<Contact> {
   try {
     const command = new UpdateCommand({
       TableName,
@@ -47,7 +44,7 @@ export async function updateUser(): Promise<User> {
 
     const result = await docClient.send(command);
 
-    return result.Attributes as User
+    return result.Attributes as Contact
   } catch (error) {
     throw error;
   }
