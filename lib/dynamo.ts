@@ -35,7 +35,8 @@ export class DynamoLayer extends cdk.Stack {
         name: 'PayerId',
         type: dynamodb.AttributeType.STRING
       },
-      nonKeyAttributes: ['TransactionId', 'DebtorId', 'TransactionItems']
+      projectionType: dynamodb.ProjectionType.ALL,
+      
     });
 
     this.tableTransactions.addGlobalSecondaryIndex({
@@ -44,7 +45,7 @@ export class DynamoLayer extends cdk.Stack {
         name: 'DebtorId',
         type: dynamodb.AttributeType.STRING
       },
-      nonKeyAttributes: ['TransactionId', 'PayerId', 'TransactionItems']
+      projectionType: dynamodb.ProjectionType.ALL,
     });
 
     this.tableTransactions.node.addMetadata("attributeDefinitions", {

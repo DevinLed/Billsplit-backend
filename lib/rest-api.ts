@@ -1,8 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { LambdaLayer } from './lambda';
 
 interface RestApiLayerProps {
-    lambdas: cdk.aws_lambda.Function;
+    lambdas: LambdaLayer;
 }
 
 export class RestApi extends Construct {
@@ -18,31 +19,29 @@ export class RestApi extends Construct {
             }
         });
 
-        this.createUsersResource(props);
+        this.createContactsResource(props);
     }
 
-    createUsersResource(props: RestApiLayerProps) {
-        const userResource = this.api.root.addResource('users');
+    createContactsResource(props: RestApiLayerProps) {
+        const { functionContactsGet, functionContactsPost } = props.lambdas;
 
-        const personEmailResource = userResource.addResource('{userId}');
+        /**
+         * Resources
+         */
+        const contactResource = this.api.root.addResource('contacts');
+        const contactIdResource = contactResource.addResource('{ContactId}');
 
-        function addGetMethod(resource: cdk.aws_apigateway.IResource, lambdas: cdk.aws_lambda.Function) {
-            const userGetLambda = new cdk.aws_apigateway.LambdaIntegration(lambdas);
-            
-            resource.addMethod('GET', userGetLambda);
-        }
-        
-        addGetMethod(userResource, props.lambdas);
-        addGetMethod(personEmailResource, props.lambdas);
+        /**
+         * Lambda Integrations
+         */
+        const contactsGetLambda = new cdk.aws_apigateway.LambdaIntegration(functionContactsGet);
+        const contactsPostLambda = new cdk.aws_apigateway.LambdaIntegration(functionContactsPost);
 
-        const userPostLambda = new cdk.aws_apigateway.LambdaIntegration(props.lambdas);
-        userResource.addMethod('POST', userPostLambda);
-
-        const userPutLambda = new cdk.aws_apigateway.LambdaIntegration(props.lambdas);
-        personEmailResource.addMethod('PUT', userPutLambda);
-
-        const userDeleteLambda = new cdk.aws_apigateway.LambdaIntegration(props.lambdas);
-        personEmailResource.addMethod('DELETE', userDeleteLambda);
-        
+        /**
+         * Resource Method Integrations
+         */
+        contactResource.addMethod('GET', contactsGetLambda);
+        contactIdResource.addMethod('GET', contactsGetLambda);
+        contactResource.addMethod('POST', contactsPostLambda);
     }
 }
