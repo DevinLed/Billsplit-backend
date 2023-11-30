@@ -10,6 +10,7 @@ interface LambdaLayerProps {
 export class LambdaLayer extends Construct {
   readonly functionContactsGet: lambda.Function;
   readonly functionContactsPost: lambda.Function;
+  readonly functionContactsDelete: lambda.Function;
   readonly functionTransactionsGet: lambda.Function;
   readonly functionTransactionsPost: lambda.Function;
 
@@ -23,13 +24,19 @@ export class LambdaLayer extends Construct {
      */
     this.functionContactsGet = new lambda.Function(this, "ContactsGet", {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: "dist/lambdas/contactGetLambda.handler",
+      handler: "dist/contactGetLambda.handler",
       code: lambda.Code.fromAsset("./deployment.zip"),
     });
 
     this.functionContactsPost = new lambda.Function(this, "ContactsPost", {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: "dist/lambdas/contactPostLambda.handler",
+      handler: "dist/contactPostLambda.handler",
+      code: lambda.Code.fromAsset("./deployment.zip"),
+    });
+
+    this.functionContactsDelete = new lambda.Function(this, "ContactsDelete", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: "dist/contactDeleteLambda.handler",
       code: lambda.Code.fromAsset("./deployment.zip"),
     });
 
@@ -38,7 +45,7 @@ export class LambdaLayer extends Construct {
       "TransactionsGet",
       {
         runtime: lambda.Runtime.NODEJS_18_X,
-        handler: "dist/lambdas/transactionGetLambda.handler",
+        handler: "dist/transactionGetLambda.handler",
         code: lambda.Code.fromAsset("./deployment.zip"),
       }
     );
@@ -58,6 +65,7 @@ export class LambdaLayer extends Construct {
      */
     tableContacts.grantReadWriteData(this.functionContactsGet);
     tableContacts.grantReadWriteData(this.functionContactsPost);
+    tableContacts.grantReadWriteData(this.functionContactsDelete);
     tableTransactions.grantReadWriteData(this.functionTransactionsGet);
     tableTransactions.grantReadWriteData(this.functionTransactionsPost);
   }
