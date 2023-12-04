@@ -4,10 +4,10 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda
 import { getContact } from '../core';
 import { Contact } from '../types';
 
-
 const dynamoDBClient = new DynamoDBClient({ region: 'us-east-1' });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const tableName = 'Contacts';
+
 const listItems = async () => {
   const params = {
     TableName: tableName,
@@ -20,7 +20,8 @@ const listItems = async () => {
     throw error;
   }
 };
-export async function getContactHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+
+async function getContactHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const data = await listItems();
   return {
     statusCode: 200,
@@ -39,6 +40,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     case 'GET': {
       return getContactHandler(event);
     }
+    
     default: {
       return {
         statusCode: 404,
