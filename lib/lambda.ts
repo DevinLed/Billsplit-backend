@@ -10,6 +10,7 @@ interface LambdaLayerProps {
 export class LambdaLayer extends Construct {
   readonly functionContactsGet: lambda.Function;
   readonly functionContactsPost: lambda.Function;
+  readonly functionContactsPut: lambda.Function;
   readonly functionContactsDelete: lambda.Function;
   readonly functionTransactionsGet: lambda.Function;
   readonly functionTransactionsPost: lambda.Function;
@@ -31,6 +32,13 @@ export class LambdaLayer extends Construct {
     this.functionContactsPost = new lambda.Function(this, "ContactsPost", {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: "dist/contactPostLambda.handler",
+      code: lambda.Code.fromAsset("./deployment.zip"),
+    });
+    
+
+    this.functionContactsPut = new lambda.Function(this, "ContactsPut", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: "dist/contactPutLambda.handler",
       code: lambda.Code.fromAsset("./deployment.zip"),
     });
 
@@ -66,6 +74,7 @@ export class LambdaLayer extends Construct {
     tableContacts.grantReadWriteData(this.functionContactsGet);
     tableContacts.grantReadWriteData(this.functionContactsPost);
     tableContacts.grantReadWriteData(this.functionContactsDelete);
+    tableContacts.grantReadWriteData(this.functionContactsPut);
     tableTransactions.grantReadWriteData(this.functionTransactionsGet);
     tableTransactions.grantReadWriteData(this.functionTransactionsPost);
   }
