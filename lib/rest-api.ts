@@ -23,7 +23,7 @@ export class RestApi extends Construct {
     }
 
     createContactsResource(props: RestApiLayerProps) {
-        const { functionContactsGet, functionContactsPost, functionContactsDelete } = props.lambdas;
+        const { functionContactsGet, functionContactsPost, functionContactsDelete, functionContactsPut } = props.lambdas;
 
         /**
          * Resources
@@ -36,6 +36,7 @@ export class RestApi extends Construct {
          */
         const contactsGetLambda = new cdk.aws_apigateway.LambdaIntegration(functionContactsGet);
         const contactsPostLambda = new cdk.aws_apigateway.LambdaIntegration(functionContactsPost);
+        const contactsPutLambda = new cdk.aws_apigateway.LambdaIntegration(functionContactsPut);
         const contactsDeleteLambda = new cdk.aws_apigateway.LambdaIntegration(functionContactsDelete);
 
         /**
@@ -45,6 +46,8 @@ export class RestApi extends Construct {
         contactIdResource.addMethod('GET', contactsGetLambda);
         contactResource.addMethod('POST', contactsPostLambda);
         contactIdResource.addMethod('POST', contactsPostLambda);
+        contactResource.addMethod('PUT', contactsPutLambda);
+        contactIdResource.addMethod('PUT', contactsPutLambda);
         contactIdResource.addMethod('DELETE', contactsDeleteLambda);
     }
 }
