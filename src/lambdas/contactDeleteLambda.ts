@@ -82,3 +82,18 @@ export async function deleteContactHandler(
     return res;
   }
 }
+export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+    console.log('Received event:', JSON.stringify(event, null, 2));
+    switch (event.httpMethod) {
+      case 'DELETE': {
+        return deleteContactHandler(event);
+      }
+      
+      default: {
+        return {
+          statusCode: 404,
+          body: 'Method not supported',
+        };
+      }
+    }
+  };
