@@ -70,7 +70,8 @@ export class DynamoLayer extends cdk.Stack {
     this.tableContacts.node.addMetadata("attributeDefinitions", {
       Name: dynamodb.AttributeType.STRING,
       Email: dynamodb.AttributeType.STRING,
-      Phone: dynamodb.AttributeType.STRING
+      Phone: dynamodb.AttributeType.STRING,
+      Owing: dynamodb.AttributeType.STRING,
     });
   }
 }

@@ -18,6 +18,7 @@ async function build() {
   await esbuild.build({
     entryPoints: lambdaFiles,
     bundle: true,
+    platform: "node",
     outdir: "dist",
     tsconfig: "./tsconfig.src.json",
   });
