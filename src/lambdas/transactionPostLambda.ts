@@ -1,31 +1,25 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  ScanCommand,
   PutCommand,
-  DeleteCommand,
-  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import { createTransaction } from "../core/transactions";
 import { Transaction } from "../types";
 
 const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const tableName = "Transactions";
 
-const createItem = async (itemData: Record<string, any>) => {
-  const userId = Date.now().toString();
-
+const createTransactionItem = async (transaction: Transaction): Promise<void> => {
   const params = {
     TableName: tableName,
     Item: {
-      ...itemData,
-      userId: userId,
+      ...transaction,
+      TransactionId: Date.now().toString(), // Assuming you want to generate a unique ID for each transaction
     },
   };
 
@@ -35,12 +29,10 @@ const createItem = async (itemData: Record<string, any>) => {
   } catch (error) {
     throw error;
   }
-
-  return { userId, ...itemData };
 };
 
 /**
- * POST will update or create user
+ * POST will create a new transaction
  */
 export async function postTransactionHandler(
   event: APIGatewayProxyEvent
@@ -68,37 +60,36 @@ export async function postTransactionHandler(
     return res;
   }
 
-  const { loggedInUserEmail, ...itemData } = JSON.parse(event.body);
+  const { loggedInUserEmail, Email, selectedValue, ...transaction } = JSON.parse(event.body);
 
-  // Update a user
-  if (itemData.itemId) {
-    console.log(`Updating transaction with id: ${itemData.itemId}`);
+  // Determine the PayerId based on selectedValue
+  const payerId = selectedValue === "you" ? loggedInUserEmail : Email;
 
-    const user = await createItem({
-      ...itemData,
-      UserEmail: loggedInUserEmail,
+  // Create a new Transaction
+  try {
+    console.log(`Creating Transaction`);
+
+    await createTransactionItem({
+      ...transaction,
+      PayerId: payerId,
     });
 
     const res = {
       ...response,
-      statusCode: 200,
-      body: JSON.stringify({ message: "Item updated successfully" })
+      statusCode: 201,
+      body: JSON.stringify({ message: "Transaction created successfully" }),
     };
 
     console.log(JSON.stringify(res, null, 2));
 
     return res;
-
-  // Create a Transaction
-  } else {
-    console.log(`Creating Transaction`);
-
-    const user = await createTransaction(itemData);
+  } catch (error) {
+    console.error("Error creating transaction:", error);
 
     const res = {
       ...response,
-      statusCode: 201,
-      body: JSON.stringify(user),
+      statusCode: 500,
+      body: JSON.stringify({ error: "Error creating transaction" }),
     };
 
     console.log(JSON.stringify(res, null, 2));
@@ -106,3 +97,19 @@ export async function postTransactionHandler(
     return res;
   }
 }
+
+export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  
+  console.log('Received event:', JSON.stringify(event, null, 2));
+  switch (event.httpMethod) {
+    case 'POST': {
+      return postTransactionHandler(event);
+    } 
+    default: {
+      return {
+        statusCode: 404,
+        body: 'Method not supported',
+      };
+    }
+  }
+};
