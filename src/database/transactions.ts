@@ -1,10 +1,8 @@
 import { DynamoDBClient, ReturnValue } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  ScanCommand,
   PutCommand,
-  DeleteCommand,
-  UpdateCommand
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { Transaction } from '../types';
 
@@ -16,12 +14,12 @@ const TableName = "Transactions";
 export async function createTransaction(transaction: Transaction): Promise<Transaction> {
   try {
     const command = new PutCommand({
-        TableName,
-        Item: transaction
+      TableName,
+      Item: transaction,
     });
     await docClient.send(command);
 
-    return transaction
+    return transaction;
   } catch (error) {
     throw error;
   }
@@ -29,24 +27,27 @@ export async function createTransaction(transaction: Transaction): Promise<Trans
 
 export async function updateTransaction(transaction: Transaction): Promise<Transaction> {
   try {
+    const { TransactionId, ...updateData } = transaction;
+
     const command = new UpdateCommand({
       TableName,
       Key: {
-        TransactionId: 'TODO'
+        TransactionId,
       },
-      UpdateExpression: '',
-      ExpressionAttributeNames: {
-
-      },
+      UpdateExpression: 'SET PayerId = :payerId, DebtorId = :debtorId, TransactionItems = :transactionItems, Merchant = :merchant, Date = :date',
       ExpressionAttributeValues: {
-
+        ':payerId': updateData.PayerId,
+        ':debtorId': updateData.DebtorId,
+        ':transactionItems': updateData.TransactionItems,
+        ':merchant': updateData.Merchant,
+        ':date': updateData.Date,
       },
-      ReturnValues: ReturnValue.UPDATED_NEW
+      ReturnValues: ReturnValue.ALL_NEW,
     });
 
     const result = await docClient.send(command);
 
-    return result.Attributes as Transaction
+    return result.Attributes as Transaction;
   } catch (error) {
     throw error;
   }
