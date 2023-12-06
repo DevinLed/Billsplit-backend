@@ -60,7 +60,7 @@ export class LambdaLayer extends Construct {
 
     this.functionTransactionsPost = new lambda.Function(
       this,
-      "TransactionPost",
+      "TransactionsPost",
       {
         runtime: lambda.Runtime.NODEJS_18_X,
         handler: "dist/lambdas/transactionPostLambda.handler",

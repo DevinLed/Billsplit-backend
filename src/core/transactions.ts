@@ -1,15 +1,10 @@
-// import { v4 as uuid } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import * as db from '../database/transactions';
 import { Transaction } from '../types';
 
 export async function createTransaction(transaction: Transaction): Promise<Transaction> {
-    const id = Math.random() * 1000000;
-    // const data: User = {
-    //     ...user,
-    //     // itemId: uuid()
-    //     itemId: String(id)
-    // }
-    
+
+    const id = uuidv4();
     return await db.createTransaction(transaction);
 }
 

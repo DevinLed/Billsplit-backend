@@ -3,6 +3,8 @@ export interface Transaction {
     PayerId: string;
     DebtorId: string;
     TransactionItems: TransactionItem[];
+    Merchant: string;
+    Date: Date;
 }
 
 export interface TransactionItem {
