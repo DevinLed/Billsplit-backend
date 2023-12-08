@@ -1,46 +1,9 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-  UpdateCommand,
-} from "@aws-sdk/lib-dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-
-const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
-const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
-const tableName = "Contacts";
-
-const updateItem = async (itemData: Record<string, any>) => {
-  const params = {
-    TableName: tableName,
-    Key: {
-      ContactId: itemData.ContactId,
-    },
-    UpdateExpression: "SET #Name = :Name, #Phone = :Phone, #Email = :Email, #Owing = :Owing",
-    ExpressionAttributeNames: {
-      "#Name": "Name",
-      "#Phone": "Phone",
-      "#Email": "Email",
-      "#Owing": "Owing",
-    },
-    ExpressionAttributeValues: {
-      ":Name": itemData.Name,
-      ":Phone": itemData.Phone,
-      ":Email": itemData.Email,
-      ":Owing": itemData.Owing,
-    },
-  };
-
-  try {
-    const command = new UpdateCommand(params);
-    await documentClient.send(command);
-  } catch (error) {
-    throw error;
-  }
-};
+import { updateContact } from "../database/contacts";
 
 export async function putContactHandler(
   event: APIGatewayProxyEvent
@@ -71,7 +34,7 @@ export async function putContactHandler(
   try {
     console.log(`Updating contact with id: ${itemData.ContactId}`);
 
-    await updateItem(itemData);
+    await updateContact(itemData);
 
     const res = {
       ...response,

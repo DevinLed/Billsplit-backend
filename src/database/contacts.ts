@@ -1,7 +1,7 @@
-import { DynamoDBClient, ReturnValue } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, ReturnValue, ScanCommand } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  UpdateCommand, PutCommand
+  UpdateCommand, PutCommand, DeleteCommand
 } from "@aws-sdk/lib-dynamodb";
 import { Contact } from '../types';
 
@@ -54,3 +54,32 @@ export async function updateContact(user: Contact): Promise<Contact> {
     throw error;
   }
 }
+
+export async function deleteContact(itemId: string): Promise<void> {
+  const params = {
+    TableName,
+    Key: {
+      ContactId: itemId,
+    },
+  };
+
+  try {
+    const command = new DeleteCommand(params);
+    await docClient.send(command);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export async function getAllContacts(): Promise<unknown> {
+  const params = {
+    TableName,
+  };
+  try {
+    const command = new ScanCommand(params);
+    const data = await docClient.send(command);
+    return data.Items || [];
+  } catch (error) {
+    throw error;
+  }
+};

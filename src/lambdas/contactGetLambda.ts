@@ -1,28 +1,11 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, ScanCommand, PutCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { getContact } from '../core';
 import { Contact } from '../types';
+import { getAllContacts } from '../database/contacts';
 
-const dynamoDBClient = new DynamoDBClient({ region: 'us-east-1' });
-const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
-const tableName = 'Contacts';
-
-const listItems = async () => {
-  const params = {
-    TableName: tableName,
-  };
-  try {
-    const command = new ScanCommand(params);
-    const data = await dynamoDBClient.send(command);
-    return data.Items || [];
-  } catch (error) {
-    throw error;
-  }
-};
 
 async function getContactHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const data = await listItems();
+  const data = await getAllContacts();
   return {
     statusCode: 200,
     body: JSON.stringify(data),
