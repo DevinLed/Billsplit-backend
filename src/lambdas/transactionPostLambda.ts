@@ -19,7 +19,7 @@ const createTransactionItem = async (transaction: Transaction): Promise<void> =>
     TableName: tableName,
     Item: {
       ...transaction,
-      TransactionId: Date.now().toString(), // Assuming you want to generate a unique ID for each transaction
+      TransactionId: Date.now().toString(), 
     },
   };
 

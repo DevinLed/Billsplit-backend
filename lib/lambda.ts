@@ -63,7 +63,7 @@ export class LambdaLayer extends Construct {
       "TransactionsPost",
       {
         runtime: lambda.Runtime.NODEJS_18_X,
-        handler: "dist/lambdas/transactionPostLambda.handler",
+        handler: "dist/transactionPostLambda.handler",
         code: lambda.Code.fromAsset("./deployment.zip"),
       }
     );

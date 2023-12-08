@@ -2,7 +2,6 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { Transaction } from '../types';
-import { postTransactionHandler } from "./transactionPostLambda";
 
 const dynamoDBClient = new DynamoDBClient({ region: 'us-east-1' });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
