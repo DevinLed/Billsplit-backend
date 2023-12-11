@@ -1,18 +1,57 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as db from '../database/transactions';
+import { DynamoDBClient, ReturnValue } from "@aws-sdk/client-dynamodb";
 import { Transaction } from '../types';
+import {
+  DynamoDBDocumentClient,
+  PutCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
+
+
+const ddb = new DynamoDBClient({ region: "us-east-1" });
+const docClient = DynamoDBDocumentClient.from(ddb);
+
+const TableName = "Transactions";
 
 export async function createTransaction(transaction: Transaction): Promise<Transaction> {
+  try {
+    const command = new PutCommand({
+      TableName,
+      Item: transaction,
+    });
+    await docClient.send(command);
 
-    const id = uuidv4();
-    return await db.createTransaction(transaction);
+    return transaction;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function updateTransaction(transaction: Transaction) {
+export async function updateTransaction(transaction: Transaction): Promise<Transaction> {
+  try {
+    const { TransactionId, ...updateData } = transaction;
 
-    return await db.updateTransaction(transaction)
-}
+    const command = new UpdateCommand({
+      TableName,
+      Key: {
+        TransactionId,
+      },
+      UpdateExpression: 'SET PayerId = :payerId, DebtorId = :debtorId, TransactionItems = :transactionItems, Merchant = :merchant, Date = :date',
+      ExpressionAttributeValues: {
+        ':payerId': updateData.PayerId,
+        ':debtorId': updateData.DebtorId,
+        ':transactionItems': updateData.TransactionItems,
+        ':merchant': updateData.Merchant,
+        ':date': updateData.Date,
+      },
+      ReturnValues: ReturnValue.ALL_NEW,
+    });
 
-export async function getTransaction() {
+    const result = await docClient.send(command);
 
+    return result.Attributes as Transaction;
+  } catch (error) {
+    throw error;
+  }
 }

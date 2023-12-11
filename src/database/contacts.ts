@@ -1,9 +1,15 @@
-import { DynamoDBClient, ReturnValue, ScanCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  ReturnValue,
+  ScanCommand,
+} from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  UpdateCommand, PutCommand, DeleteCommand
+  UpdateCommand,
+  PutCommand,
+  DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Contact } from '../types';
+import { Contact } from "../types";
 
 const ddb = new DynamoDBClient({ region: "us-east-1" });
 const docClient = DynamoDBDocumentClient.from(ddb);
@@ -13,12 +19,12 @@ const TableName = "Contacts";
 export async function createContact(user: Contact): Promise<Contact> {
   try {
     const command = new PutCommand({
-        TableName,
-        Item: user
+      TableName,
+      Item: user,
     });
     await docClient.send(command);
 
-    return user
+    return user;
   } catch (error) {
     throw error;
   }
@@ -29,20 +35,20 @@ export async function updateContact(user: Contact): Promise<Contact> {
     const command = new UpdateCommand({
       TableName,
       Key: {
-        ContactId: user.ContactId, 
+        ContactId: user.ContactId,
       },
-      UpdateExpression: 'SET #Name = :Name, #Email = :Email, #Phone = :Phone',
+      UpdateExpression: "SET #Name = :Name, #Email = :Email, #Phone = :Phone",
       ExpressionAttributeNames: {
-        '#Name': 'Name',
-        '#Email': 'Email',
-        '#Phone': 'Phone',
-        '#Owing': 'Owing',
+        "#Name": "Name",
+        "#Email": "Email",
+        "#Phone": "Phone",
+        "#Owing": "Owing",
       },
       ExpressionAttributeValues: {
-        ':Name': user.Name,
-        ':Email': user.Email,
-        ':Phone': user.Phone,
-        ':Owing': user.Owing,
+        ":Name": user.Name,
+        ":Email": user.Email,
+        ":Phone": user.Phone,
+        ":Owing": user.Owing,
       },
       ReturnValues: ReturnValue.UPDATED_NEW,
     });
@@ -69,7 +75,7 @@ export async function deleteContact(itemId: string): Promise<void> {
   } catch (error) {
     throw error;
   }
-};
+}
 
 export async function getAllContacts(): Promise<unknown> {
   const params = {
@@ -82,4 +88,4 @@ export async function getAllContacts(): Promise<unknown> {
   } catch (error) {
     throw error;
   }
-};
+}

@@ -3,7 +3,7 @@ import {
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import { updateContact } from "../database/contacts";
+import { updateContact } from "../core";
 
 export async function putContactHandler(
   event: APIGatewayProxyEvent
