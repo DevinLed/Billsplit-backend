@@ -7,9 +7,7 @@ import { createContact } from "../core";
 import { Contact } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
-/**
- * POST will update or create user
- */
+
 export async function postContactHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
@@ -36,7 +34,6 @@ export async function postContactHandler(
 
   const { loggedInUserEmail, ...itemData } = JSON.parse(event.body);
 
-  // Update a user
   if (itemData.itemId) {
     console.log(`Updating contact with id: ${itemData.itemId}`);
 
@@ -55,7 +52,6 @@ export async function postContactHandler(
 
     return res;
 
-    // Create a Contact
   } else {
     console.log(`Creating Contact`);
     const contactId = uuidv4();

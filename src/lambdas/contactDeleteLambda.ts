@@ -1,9 +1,33 @@
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  DeleteCommand,
+} from "@aws-sdk/lib-dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import { deleteContact } from "../database/contacts";
+
+const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
+const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
+const tableName = "Contacts";
+
+const deleteItem = async (itemId: string) => {
+  const params = {
+    TableName: tableName,
+    Key: {
+      ContactId: itemId,
+    },
+  };
+
+  try {
+    const command = new DeleteCommand(params);
+    await documentClient.send(command);
+  } catch (error) {
+    throw error;
+  }
+};
 
 export async function deleteContactHandler(
   event: APIGatewayProxyEvent
@@ -34,11 +58,11 @@ export async function deleteContactHandler(
   try {
     console.log(`Deleting contact with id: ${itemId}`);
 
-    await deleteContact(itemId);
+    await deleteItem(itemId);
 
     const res = {
       ...response,
-      statusCode: 204, // No content for a successful deletion
+      statusCode: 204, 
     };
 
     console.log(JSON.stringify(res, null, 2));
