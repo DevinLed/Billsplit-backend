@@ -37,7 +37,7 @@ export async function updateContact(contact: Contact): Promise<Contact> {
       Key: {
         ContactId: contact.ContactId,
       },
-      UpdateExpression: "SET #Name = :Name, #Email = :Email, #Phone = :Phone",
+      UpdateExpression: "SET #Name = :Name, #Email = :Email, #Phone = :Phone, #Owing = :Owing",
       ExpressionAttributeNames: {
         "#Name": "Name",
         "#Email": "Email",

@@ -75,6 +75,7 @@ export class LambdaLayer extends Construct {
     tableContacts.grantReadWriteData(this.functionContactsPost);
     tableContacts.grantReadWriteData(this.functionContactsDelete);
     tableContacts.grantReadWriteData(this.functionContactsPut);
+    tableContacts.grantReadWriteData(this.functionTransactionsPost);
     tableTransactions.grantReadWriteData(this.functionTransactionsGet);
     tableTransactions.grantReadWriteData(this.functionTransactionsPost);
   }

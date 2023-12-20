@@ -1,8 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-  PutCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
@@ -14,12 +11,14 @@ const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const tableName = "Transactions";
 
-const createTransactionItem = async (transaction: Transaction): Promise<void> => {
+const createTransactionItem = async (
+  transaction: Transaction
+): Promise<void> => {
   const params = {
     TableName: tableName,
     Item: {
       ...transaction,
-      TransactionId: Date.now().toString(), 
+      TransactionId: Date.now().toString(),
     },
   };
 
@@ -41,12 +40,12 @@ export async function postTransactionHandler(
 
   const response = {
     statusCode: 500,
-    body: '',
+    body: "",
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "OPTIONS,POST,GET,DELETE,PUT",
-    }
-  }
+    },
+  };
 
   if (!event.body) {
     const res = {
@@ -60,10 +59,12 @@ export async function postTransactionHandler(
     return res;
   }
 
-  const { loggedInUserEmail, Email, selectedValue, ...transaction } = JSON.parse(event.body);
+  const { loggedInUserEmail, Email, selectedValue, ...transaction } =
+    JSON.parse(event.body);
 
   // Determine the PayerId based on selectedValue
   const payerId = selectedValue === "you" ? loggedInUserEmail : Email;
+  const debtorId = selectedValue === "You" ? Email : loggedInUserEmail;
 
   // Create a new Transaction
   try {
@@ -72,8 +73,9 @@ export async function postTransactionHandler(
     await createTransactionItem({
       ...transaction,
       PayerId: payerId,
+      DebtorId: debtorId,
     });
-
+    console.log(JSON.stringify("payerID:", payerId, debtorId));
     const res = {
       ...response,
       statusCode: 201,
@@ -98,17 +100,19 @@ export async function postTransactionHandler(
   }
 }
 
-export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  
-  console.log('Received event:', JSON.stringify(event, null, 2));
+export const handler = async (
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> => {
+  console.log("Received event:", JSON.stringify(event, null, 2));
   switch (event.httpMethod) {
-    case 'POST': {
+    case "POST": {
       return postTransactionHandler(event);
-    } 
+    }
     default: {
       return {
         statusCode: 404,
-        body: 'Method not supported',
+        body: "Method not supported",
       };
     }
   }
