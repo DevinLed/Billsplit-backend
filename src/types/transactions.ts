@@ -5,6 +5,7 @@ export interface Transaction {
     TransactionItems: TransactionItem[];
     Merchant: string;
     Date: Date;
+    SelectedValue: string;
 }
 
 export interface TransactionItem {

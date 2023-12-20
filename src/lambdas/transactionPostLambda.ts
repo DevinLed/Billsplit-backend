@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
@@ -10,7 +10,7 @@ import { Transaction } from "../types";
 const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const tableName = "Transactions";
-
+const contactsTableName = "Contacts"; 
 const createTransactionItem = async (
   transaction: Transaction
 ): Promise<void> => {
@@ -36,6 +36,7 @@ const createTransactionItem = async (
 export async function postTransactionHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
+  
   console.log("Received event:", JSON.stringify(event, null, 2));
 
   const response = {
@@ -59,23 +60,30 @@ export async function postTransactionHandler(
     return res;
   }
 
-  const { loggedInUserEmail, Email, selectedValue, ...transaction } =
+  const { loggedInUserEmail, personEmail, selectedValue, personOwing, receiptTotal, personReceiptAmount, ...transaction } =
     JSON.parse(event.body);
 
+    console.log("selectedValue?", selectedValue);
   // Determine the PayerId based on selectedValue
-  const payerId = selectedValue === "you" ? loggedInUserEmail : Email;
-  const debtorId = selectedValue === "You" ? Email : loggedInUserEmail;
+  const payerId = selectedValue === "you" ? loggedInUserEmail : personEmail;
+  const debtorId = selectedValue === "you" ? personEmail : loggedInUserEmail;
 
   // Create a new Transaction
   try {
-    console.log(`Creating Transaction`);
-
+    
     await createTransactionItem({
       ...transaction,
       PayerId: payerId,
       DebtorId: debtorId,
+      personReceiptAmount: personReceiptAmount,
     });
-    console.log(JSON.stringify("payerID:", payerId, debtorId));
+    console.log("loggedInUserEmail:",loggedInUserEmail);
+    console.log("PersonEmail:",personEmail);
+    console.log("payerID:", payerId);
+    console.log("debtorID:", debtorId);
+    console.log("personOwing:", personOwing);
+    console.log("receiptTotal:", receiptTotal);
+    console.log("personReceiptAmount:", personReceiptAmount);
     const res = {
       ...response,
       statusCode: 201,
