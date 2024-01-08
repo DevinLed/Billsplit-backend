@@ -7,7 +7,8 @@ import {
 } from "aws-lambda";
 import { Transaction } from "../types";
 import { listTransactions } from "../core/transactions";
-
+import { HttpResponses, HttpStatus } from "../http/utils"; 
+import { handlerFactory } from "../http/handler";
 export async function getTransactionHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
@@ -34,24 +35,13 @@ export async function getTransactionHandler(
   }
 }
 
+const customHandler = handlerFactory();
+
+customHandler.addHandler("GET", getTransactionHandler);
+
 export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
-  console.log("Received event:", JSON.stringify(event, null, 2));
-  switch (event.httpMethod) {
-    case "GET": {
-      return getTransactionHandler(event);
-    }
-    default: {
-      return {
-        statusCode: 404,
-        body: "Method not supported",
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "OPTIONS,POST,GET,DELETE,PUT",
-        },
-      };
-    }
-  }
+  return await customHandler.execute(event);
 };

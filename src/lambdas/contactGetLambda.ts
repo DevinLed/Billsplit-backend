@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { listContacts } from '../core/contacts';
-
+import { HttpResponses, HttpStatus } from "../http/utils"; 
+import { handlerFactory } from "../http/handler";
 
 async function getContactHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const data = await listContacts();
@@ -14,20 +15,13 @@ async function getContactHandler(event: APIGatewayProxyEvent): Promise<APIGatewa
   };
 }
 
-export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  
-  console.log('Received event:', JSON.stringify(event, null, 2));
-  switch (event.httpMethod) {
-    case 'GET': {
-      return getContactHandler(event);
-    }
-    
-    default: {
-      return {
-        statusCode: 404,
-        body: 'Method not supported',
-      };
-    }
-  }
-};
+const customHandler = handlerFactory();
 
+customHandler.addHandler("GET", getContactHandler);
+
+export const handler = async (
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> => {
+  return await customHandler.execute(event);
+};

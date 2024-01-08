@@ -4,4 +4,5 @@ export interface Contact {
     Email: string;
     Phone: string;
     Owing: string;
+    UserEmail: any; 
 }

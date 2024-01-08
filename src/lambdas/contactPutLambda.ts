@@ -4,7 +4,8 @@ import {
   Context,
 } from "aws-lambda";
 import { updateContact } from "../core";
-
+import { HttpResponses, HttpStatus } from "../http/utils"; 
+import { handlerFactory } from "../http/handler";
 export async function putContactHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
@@ -60,18 +61,13 @@ export async function putContactHandler(
   }
 }
 
-export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  console.log('Received event:', JSON.stringify(event, null, 2));
-  switch (event.httpMethod) {
-    case 'PUT': {
-      return putContactHandler(event);
-    }
-    
-    default: {
-      return {
-        statusCode: 404,
-        body: 'Method not supported',
-      };
-    }
-  }
+const customHandler = handlerFactory();
+
+customHandler.addHandler("PUT", putContactHandler);
+
+export const handler = async (
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> => {
+  return await customHandler.execute(event);
 };

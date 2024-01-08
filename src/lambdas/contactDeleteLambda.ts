@@ -5,6 +5,9 @@ import {
 } from "aws-lambda";
 import { deleteContact } from "../core/contacts";
 
+import { handlerFactory } from "../http/handler";
+import { HttpResponses, HttpStatus } from "../http/utils"; 
+
 export async function deleteContactHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
@@ -58,21 +61,13 @@ export async function deleteContactHandler(
     return res;
   }
 }
+const customHandler = handlerFactory();
+
+customHandler.addHandler("DELETE", deleteContactHandler);
+
 export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
-  console.log("Received event:", JSON.stringify(event, null, 2));
-  switch (event.httpMethod) {
-    case "DELETE": {
-      return deleteContactHandler(event);
-    }
-
-    default: {
-      return {
-        statusCode: 404,
-        body: "Method not supported",
-      };
-    }
-  }
+  return await customHandler.execute(event);
 };

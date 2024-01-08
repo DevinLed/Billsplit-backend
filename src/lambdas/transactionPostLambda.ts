@@ -6,7 +6,8 @@ import {
   Context,
 } from "aws-lambda";
 import { Transaction } from "../types";
-
+import { HttpResponses, HttpStatus } from "../http/utils"; 
+import { handlerFactory } from "../http/handler";
 const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const tableName = "Transactions";
@@ -108,20 +109,13 @@ export async function postTransactionHandler(
   }
 }
 
+const customHandler = handlerFactory();
+
+customHandler.addHandler("POST", postTransactionHandler);
+
 export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
-  console.log("Received event:", JSON.stringify(event, null, 2));
-  switch (event.httpMethod) {
-    case "POST": {
-      return postTransactionHandler(event);
-    }
-    default: {
-      return {
-        statusCode: 404,
-        body: "Method not supported",
-      };
-    }
-  }
+  return await customHandler.execute(event);
 };
