@@ -27,8 +27,6 @@ export async function postContactHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   try {
-    console.log("Incoming request:", event);
-
     const response = {
       body: "",
       headers: {
@@ -43,45 +41,76 @@ export async function postContactHandler(
 
     const { loggedInUserEmail, ...itemData } = JSON.parse(event.body);
 
-    if (itemData.itemId) {
-      const user = await createContact({
+    let existingUser;
+    let existingCurrent;
+
+    const userPoolId = 'us-east-1_whmGZCnxe';
+    const filter = `email = "${itemData.Email}"`;
+    const filterCurrent = `email = "${loggedInUserEmail}"0`;
+
+    const listUsersCommand: ListUsersCommandInput = {
+      UserPoolId: userPoolId,
+      Filter: filter,
+    };
+    const listCurrentCommand: ListUsersCommandInput = {
+      UserPoolId: userPoolId,
+      Filter: filterCurrent,
+    };
+
+    try {
+      const users: ListUsersCommandOutput = await listUsers(listUsersCommand);
+
+      if (users?.Users && users.Users.length > 0) {
+        existingUser = users.Users[0];
+      }
+    } catch (error: any) {
+      console.error('Error querying Cognito:', error);
+      return HttpResponses.internalServerError("Internal Server Error");
+    }
+    try {
+      const users: ListUsersCommandOutput = await listUsers(listCurrentCommand);
+
+      if (users?.Users && users.Users.length > 0) {
+        existingCurrent = users.Users[0];
+      }
+    } catch (error: any) {
+      console.error('Error querying Cognito:', error);
+      return HttpResponses.internalServerError("Internal Server Error");
+    }
+
+
+    if (existingUser) {
+      const contactId = existingUser.Username;
+      const contactDi = existingCurrent.username;
+
+      const userA = await createContact({
         ...itemData,
         UserEmail: loggedInUserEmail,
+        ContactId: contactId,
       });
 
-      return HttpResponses.ok({ message: "Item updated successfully" });
+      const userB = await createContact({
+        Email: loggedInUserEmail,
+        Name: loggedInUserEmail,
+        UserEmail: itemData.Email,
+        ContactId: contactDi,
+        Phone: '1111111111', 
+        Owing: '0', 
+      });
+
+      return HttpResponses.created({ UserA: userA, UserB: userB });
     } else {
-      const userPoolId = 'us-east-1_whmGZCnxe';
-      const filter = `email = "${itemData.Email}"`;
-
-      const listUsersCommand: ListUsersCommandInput = {
-        UserPoolId: userPoolId,
-        Filter: filter,
-      };
-
-      try {
-        const users: ListUsersCommandOutput = await listUsers(listUsersCommand);
-
-        if (users?.Users && users.Users.length > 0) {
-          const userId = users.Users[0].Username;
-          const user = await createContact({ ...itemData, ContactId: userId });
-
-          return HttpResponses.created({ ...user, ContactId: userId });
-        }
-      } catch (error: any) {
-        console.error('Error querying Cognito:', error);
-      }
-
       const contactId = uuidv4();
       const user = await createContact({ ...itemData, ContactId: contactId });
 
-      return HttpResponses.created({ ...user, ContactId: contactId });
+      return HttpResponses.created({ UserA: user, UserB: null });
     }
   } catch (error) {
     console.error("Error processing request:", error);
     return HttpResponses.internalServerError("Internal Server Error");
   }
 }
+
 
 export const handler = async (
   event: APIGatewayProxyEvent,
