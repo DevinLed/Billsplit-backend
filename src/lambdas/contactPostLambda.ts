@@ -39,14 +39,16 @@ export async function postContactHandler(
       return HttpResponses.badRequest("Invalid request. Body is missing.");
     }
 
-    const { loggedInUserEmail, ...itemData } = JSON.parse(event.body);
+    const { UserEmail, UserName, ...itemData } = JSON.parse(event.body);
 
     let existingUser;
     let existingCurrent;
 
+    const currentEmail = UserEmail;
+
     const userPoolId = 'us-east-1_whmGZCnxe';
     const filter = `email = "${itemData.Email}"`;
-    const filterCurrent = `email = "${loggedInUserEmail}"0`;
+    const filterCurrent = `email = "${currentEmail}"`;
 
     const listUsersCommand: ListUsersCommandInput = {
       UserPoolId: userPoolId,
@@ -77,23 +79,24 @@ export async function postContactHandler(
       console.error('Error querying Cognito:', error);
       return HttpResponses.internalServerError("Internal Server Error");
     }
-
+    const cognitoUserId = event.requestContext?.identity?.cognitoIdentityId || uuidv4();
 
     if (existingUser) {
       const contactId = existingUser.Username;
-      const contactDi = existingCurrent.username;
 
       const userA = await createContact({
         ...itemData,
-        UserEmail: loggedInUserEmail,
+        UserEmail: currentEmail,
         ContactId: contactId,
+        UserName: itemData.Name
       });
 
       const userB = await createContact({
-        Email: loggedInUserEmail,
-        Name: loggedInUserEmail,
+        Email: currentEmail,
+        Name: UserName,
+        UserName: itemData.UserName,
         UserEmail: itemData.Email,
-        ContactId: contactDi,
+        ContactId: cognitoUserId,
         Phone: '1111111111', 
         Owing: '0', 
       });
@@ -101,7 +104,7 @@ export async function postContactHandler(
       return HttpResponses.created({ UserA: userA, UserB: userB });
     } else {
       const contactId = uuidv4();
-      const user = await createContact({ ...itemData, ContactId: contactId });
+      const user = await createContact({ ...itemData, ContactId: contactId, UserEmail: currentEmail });
 
       return HttpResponses.created({ UserA: user, UserB: null });
     }

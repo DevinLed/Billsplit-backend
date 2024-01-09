@@ -5,4 +5,5 @@ export interface Contact {
     Phone: string;
     Owing: string;
     UserEmail: any; 
+    UserName: string;
 }
