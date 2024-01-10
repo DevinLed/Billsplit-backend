@@ -3,7 +3,7 @@ export interface Contact {
     Name: string;
     Email: string;
     Phone: string;
-    Owing: string;
+    Owing: any;
     UserEmail: any; 
     UserName: string;
 }

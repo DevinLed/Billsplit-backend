@@ -59,6 +59,7 @@ export async function updateContact(contact: Contact): Promise<Contact> {
   }
 }
 
+
 export async function deleteContact(contactId: string): Promise<void> {
   const params = {
     TableName,

@@ -39,16 +39,16 @@ export async function postContactHandler(
       return HttpResponses.badRequest("Invalid request. Body is missing.");
     }
 
-    const { UserEmail, UserName, ...itemData } = JSON.parse(event.body);
-
+    const { ...itemData } = JSON.parse(event.body);
+    
     let existingUser;
     let existingCurrent;
 
-    const currentEmail = UserEmail;
+    const currentEmail = itemData.UserEmail;
 
     const userPoolId = 'us-east-1_whmGZCnxe';
     const filter = `email = "${itemData.Email}"`;
-    const filterCurrent = `email = "${currentEmail}"`;
+    const filterCurrent = `email = "${itemData.UserEmail}"`;
 
     const listUsersCommand: ListUsersCommandInput = {
       UserPoolId: userPoolId,
@@ -74,12 +74,13 @@ export async function postContactHandler(
 
       if (users?.Users && users.Users.length > 0) {
         existingCurrent = users.Users[0];
+        console.log('Cognito ID?', existingCurrent.Username);
       }
     } catch (error: any) {
       console.error('Error querying Cognito:', error);
       return HttpResponses.internalServerError("Internal Server Error");
     }
-    const cognitoUserId = event.requestContext?.identity?.cognitoIdentityId || uuidv4();
+   
 
     if (existingUser) {
       const contactId = existingUser.Username;
@@ -88,17 +89,17 @@ export async function postContactHandler(
         ...itemData,
         UserEmail: currentEmail,
         ContactId: contactId,
-        UserName: itemData.Name
+        UserName: itemData.UserName
       });
-
+      const oppositeOwing = -parseFloat(itemData.Owing);
       const userB = await createContact({
         Email: currentEmail,
-        Name: UserName,
-        UserName: itemData.UserName,
+        Name: itemData.UserName,
+        UserName: itemData.Name,
         UserEmail: itemData.Email,
-        ContactId: cognitoUserId,
-        Phone: '1111111111', 
-        Owing: '0', 
+        ContactId: existingCurrent.Username,
+        Phone: 'Enter phone #', 
+        Owing: oppositeOwing, 
       });
 
       return HttpResponses.created({ UserA: userA, UserB: userB });
