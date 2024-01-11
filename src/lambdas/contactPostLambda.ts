@@ -6,7 +6,6 @@ import {
 } from "aws-lambda";
 import { createContact } from "../core";
 import { Contact } from "../types";
-
 import {
   CognitoIdentityProvider,
   ListUsersCommandInput,
@@ -14,6 +13,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 import { HttpResponses, HttpStatus } from "../http/utils";
 import { Handler, handlerFactory } from "../http/handler";
+import { getExistingContact, updateExistingContact } from '../database/contacts';
 
 const cognitoIdentityProvider = new CognitoIdentityProvider({
   region: 'us-east-1',
@@ -91,18 +91,30 @@ export async function postContactHandler(
         ContactId: contactId,
         UserName: itemData.UserName
       });
-      const oppositeOwing = -parseFloat(itemData.Owing);
-      const userB = await createContact({
-        Email: currentEmail,
-        Name: itemData.UserName,
-        UserName: itemData.Name,
-        UserEmail: itemData.Email,
-        ContactId: existingCurrent.Username,
-        Phone: 'Enter phone #', 
-        Owing: oppositeOwing, 
-      });
+      const existingContactInDB = await getExistingContact(itemData.Email, itemData.UserEmail);
 
-      return HttpResponses.created({ UserA: userA, UserB: userB });
+      if (!existingContactInDB) {
+        const oppositeOwing = -parseFloat(itemData.Owing);
+        const userB = await createContact({
+          Email: currentEmail,
+          Name: itemData.UserName,
+          UserName: itemData.Name,
+          UserEmail: itemData.Email,
+          ContactId: existingCurrent.Username,
+          Phone: 'Enter phone #', 
+          Owing: oppositeOwing || '0.00', 
+        });
+
+        return HttpResponses.created({ UserA: userA, UserB: userB });
+      } else {
+        const updatedExistingContact = await updateExistingContact(itemData.Email, itemData.UserEmail, {
+          ContactId: existingCurrent.Username,
+          Owing: parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing) || '0.00',
+        });
+        
+        return HttpResponses.created({ UserA: userA, UserB: "updated" });
+        
+      }
     } else {
       const contactId = uuidv4();
       const user = await createContact({ ...itemData, ContactId: contactId, UserEmail: currentEmail });

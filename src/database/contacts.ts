@@ -9,6 +9,8 @@ import { DynamoDBClient, ReturnValue } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   ScanCommandOutput,
+  QueryCommand,
+  QueryCommandOutput,
 } from "@aws-sdk/lib-dynamodb";
 import { Contact } from "../types";
 
@@ -36,7 +38,8 @@ export async function updateContact(contact: Contact): Promise<Contact> {
       Key: {
         ContactId: contact.ContactId,
       },
-      UpdateExpression: "SET #Name = :Name, #Email = :Email, #Phone = :Phone, #Owing = :Owing",
+      UpdateExpression:
+        "SET #Name = :Name, #Email = :Email, #Phone = :Phone, #Owing = :Owing",
       ExpressionAttributeNames: {
         "#Name": "Name",
         "#Email": "Email",
@@ -59,7 +62,6 @@ export async function updateContact(contact: Contact): Promise<Contact> {
   }
 }
 
-
 export async function deleteContact(contactId: string): Promise<void> {
   const params = {
     TableName,
@@ -75,7 +77,6 @@ export async function deleteContact(contactId: string): Promise<void> {
     throw error;
   }
 }
-
 export async function listContacts(): Promise<Contact[]> {
   const params = {
     TableName,
@@ -89,6 +90,7 @@ export async function listContacts(): Promise<Contact[]> {
     throw error;
   }
 }
+
 
 export async function getContact(contactId: string): Promise<Contact | null> {
   const params = {
@@ -107,3 +109,60 @@ export async function getContact(contactId: string): Promise<Contact | null> {
     throw error;
   }
 }
+export async function getExistingContact(Email: string, UserEmail: string): Promise<Contact | null> {
+  const params = {
+    TableName,
+    FilterExpression: 'Email = :email AND UserEmail = :userEmail',
+    ExpressionAttributeValues: {
+      ':email': UserEmail,
+      ':userEmail': Email,
+    },
+  };
+
+  try {
+    const command = new ScanCommand(params);
+    const data: ScanCommandOutput = await docClient.send(command);
+    const contact = (data.Items || []) as Contact[];
+    return contact.length ? contact[0] : null;
+  } catch (error) {
+    throw error;
+  }
+}
+export async function updateExistingContact(
+  Email: string,
+  UserEmail: string,
+  updatedFields: Partial<Pick<Contact, 'ContactId' | 'Owing'>>
+): Promise<Contact | null> {
+  const params = {
+    TableName,
+    Key: {
+      'Email': Email,       
+      'UserEmail': UserEmail, 
+    },
+    UpdateExpression: "SET #ContactId = :ContactId, #Owing = :Owing",
+    ExpressionAttributeNames: {
+      "#ContactId": "ContactId",
+      "#Owing": "Owing",
+    },
+    ExpressionAttributeValues: {
+      ":ContactId": updatedFields.ContactId,
+      ":Owing": updatedFields.Owing,
+    },
+    ReturnValues: ReturnValue.ALL_NEW,
+  };
+
+  try {
+    const command = new UpdateCommand(params);
+    const data: any = await docClient.send(command);
+    return data.Attributes as Contact;
+  } catch (error) {
+    console.error('Error updating contact:', error);
+    throw error;
+  }
+}
+
+const table = {
+  id: '', // PK, Current/active user id
+  contactId: '', // SK, cognito id of other person, or uuid of other person
+}
+
