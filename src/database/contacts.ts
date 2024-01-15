@@ -129,28 +129,24 @@ export async function getExistingContact(Email: string, UserEmail: string): Prom
   }
 }
 export async function updateExistingContact(
-  Email: string,
-  UserEmail: string,
-  updatedFields: Partial<Pick<Contact, 'ContactId' | 'Owing' | 'Name' | 'Email' | 'Phone'>>
+  ContactId: string, 
+  updatedFields: Partial<Pick<Contact,'Owing' | 'Name' | 'Email' | 'Phone' | 'UserEmail'>>
 ): Promise<Contact | null> {
-  console.log('Update operation parameters:', { Email, UserEmail, updatedFields });
+  console.log('Update operation parameters:', { ContactId, updatedFields });
 
   const params = {
     TableName,
     Key: {
-      'Email': UserEmail,
-      'UserEmail': Email,
+      'ContactId': ContactId,
     },
-    UpdateExpression: "SET #ContactId = :ContactId, #Owing = :Owing, #Name = :Name, #Email = :Email, #Phone = :Phone",
+    UpdateExpression: "SET #Owing = :Owing, #Name = :Name, #Email = :Email, #Phone = :Phone",
     ExpressionAttributeNames: {
-      "#ContactId": "ContactId",
       "#Owing": "Owing",
       "#Name": "Name",
       "#Email": "Email",
       "#Phone": "Phone",
     },
     ExpressionAttributeValues: {
-      ":ContactId": updatedFields.ContactId, 
       ":Owing": updatedFields.Owing,
       ":Name": updatedFields.Name,
       ":Email": updatedFields.Email,
@@ -166,10 +162,10 @@ export async function updateExistingContact(
     return data.Attributes as Contact;
   } catch (error) {
     console.error('Error updating contact:', error);
-    console.log('Input parameters:', { Email, UserEmail, updatedFields });
+    console.log('Input parameters:', { ContactId, updatedFields });
     console.log('ExpressionAttributeValues:', params.ExpressionAttributeValues);
     console.log('ExpressionAttributeNames:', params.ExpressionAttributeNames);
-  
+
     throw error;
   }
 }

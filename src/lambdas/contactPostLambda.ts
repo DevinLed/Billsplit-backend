@@ -110,8 +110,7 @@ export async function postContactHandler(
         console.log('existingCurrent.Username:', existingCurrent.Username);
         console.log('itemData.Email:', itemData.Email);
         console.log('itemData.UserEmail:', itemData.UserEmail);
-        const updatedExistingContact = await updateExistingContact(itemData.Email, itemData.UserEmail, {
-          ContactId: existingCurrent.Username,
+        const updatedExistingContact = await updateExistingContact(existingContactInDB.ContactId, {
           Owing: parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing) || '0.00',
           Name: existingContactInDB.Name,
           Email: existingContactInDB.Email,

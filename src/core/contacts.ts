@@ -18,30 +18,29 @@ export async function updateContact(user: Contact): Promise<Contact> {
 }
 
 export async function updateExistingContact(
-  Email: string,
-  Owing: number,
-  Name: string,
-  Phone: string,
-  UserEmail: string
-): Promise<Contact> {
-  try {
-    const updatedContact = await db.updateExistingContact(Email, UserEmail, {
-      ContactId: "",
-      Owing,
-      Name,
-      Email,
-      Phone,
-    });
-
-    if (!updatedContact) {
-      throw new Error("Failed to update contact");
+    Email: string,
+    Owing: number,
+    Name: string,
+    Phone: string,
+    UserEmail: any,
+    ContactId: string
+  ): Promise<Contact> {
+    try {
+      const updatedContact = await db.updateExistingContact(
+        ContactId,
+        UserEmail,
+      );
+  
+      if (!updatedContact) {
+        throw new Error("Failed to update contact");
+      }
+  
+      return updatedContact;
+    } catch (error) {
+      throw error;
     }
-
-    return updatedContact;
-  } catch (error) {
-    throw error;
   }
-}
+  
 
 export async function deleteContact(itemId: string): Promise<void> {
   try {
