@@ -92,7 +92,7 @@ export async function postContactHandler(
         UserName: itemData.UserName
       });
       const existingContactInDB = await getExistingContact(itemData.Email, itemData.UserEmail);
-
+      console.log('existingContactInDB?', existingContactInDB);
       if (!existingContactInDB) {
         const oppositeOwing = -parseFloat(itemData.Owing);
         const userB = await createContact({
@@ -107,9 +107,15 @@ export async function postContactHandler(
 
         return HttpResponses.created({ UserA: userA, UserB: userB });
       } else {
+        console.log('existingCurrent.Username:', existingCurrent.Username);
+        console.log('itemData.Email:', itemData.Email);
+        console.log('itemData.UserEmail:', itemData.UserEmail);
         const updatedExistingContact = await updateExistingContact(itemData.Email, itemData.UserEmail, {
           ContactId: existingCurrent.Username,
           Owing: parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing) || '0.00',
+          Name: existingContactInDB.Name,
+          Email: existingContactInDB.Email,
+          Phone: existingContactInDB.Phone,
         });
         
         return HttpResponses.created({ UserA: userA, UserB: "updated" });
