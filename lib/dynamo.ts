@@ -63,6 +63,10 @@ export class DynamoLayer extends cdk.Stack {
         name: "ContactId",
         type: dynamodb.AttributeType.STRING,
       },
+      sortKey: {
+        name: "UserEmail",
+        type: dynamodb.AttributeType.STRING,
+      },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });

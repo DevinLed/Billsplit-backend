@@ -37,6 +37,7 @@ export async function updateContact(contact: Contact): Promise<Contact> {
       TableName,
       Key: {
         ContactId: contact.ContactId,
+        UserEmail: contact.UserEmail,
       },
       UpdateExpression:
         "SET #Name = :Name, #Email = :Email, #Phone = :Phone, #Owing = :Owing",
@@ -62,11 +63,12 @@ export async function updateContact(contact: Contact): Promise<Contact> {
   }
 }
 
-export async function deleteContact(contactId: string): Promise<void> {
+export async function deleteContact(ContactId: string, UserEmail: any): Promise<void> {
   const params = {
     TableName,
     Key: {
-      ContactId: contactId,
+      ContactId: ContactId,
+      UserEmail: UserEmail,
     },
   };
 
@@ -77,6 +79,7 @@ export async function deleteContact(contactId: string): Promise<void> {
     throw error;
   }
 }
+
 export async function listContacts(): Promise<Contact[]> {
   const params = {
     TableName,
@@ -92,38 +95,48 @@ export async function listContacts(): Promise<Contact[]> {
 }
 
 
-export async function getContact(contactId: string): Promise<Contact | null> {
+export async function getContact(ContactId: string, UserEmail: string): Promise<Contact | null> {
   const params = {
     TableName,
-    Key: {
-      ContactId: contactId,
+    KeyConditionExpression: 'ContactId = :contactId AND UserEmail = :userEmail',
+    ExpressionAttributeValues: {
+      ':contactId': ContactId,
+      ':userEmail': UserEmail,
     },
   };
 
   try {
-    const command = new ScanCommand(params);
-    const data: ScanCommandOutput = await docClient.send(command);
-    const contact = (data.Items || []) as Contact[];
-    return contact.length ? contact[0] : null;
+    const command = new QueryCommand(params);
+    const data: QueryCommandOutput = await docClient.send(command);
+
+    if (data.Items && data.Items.length > 0) {
+      return data.Items[0] as Contact;
+    } else {
+      return null;
+    }
   } catch (error) {
     throw error;
   }
 }
-export async function getExistingContact(Email: string, UserEmail: string): Promise<Contact | null> {
+export async function getExistingContact(ContactId: string, UserEmail: string): Promise<Contact | null> {
   const params = {
     TableName,
-    FilterExpression: 'Email = :email AND UserEmail = :userEmail',
+    KeyConditionExpression: 'ContactId = :contactId AND UserEmail = :userEmail',
     ExpressionAttributeValues: {
-      ':email': UserEmail,
-      ':userEmail': Email,
+      ':contactId': ContactId,
+      ':userEmail': UserEmail,
     },
   };
 
   try {
-    const command = new ScanCommand(params);
-    const data: ScanCommandOutput = await docClient.send(command);
-    const contact = (data.Items || []) as Contact[];
-    return contact.length ? contact[0] : null;
+    const command = new QueryCommand(params);
+    const data: QueryCommandOutput = await docClient.send(command);
+
+    if (data.Items && data.Items.length > 0) {
+      return data.Items[0] as Contact;
+    } else {
+      return null;
+    }
   } catch (error) {
     throw error;
   }

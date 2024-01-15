@@ -17,6 +17,7 @@ export async function updateContact(user: Contact): Promise<Contact> {
   }
 }
 
+/* To update - based on PK will not work
 export async function updateExistingContact(
     Email: string,
     Owing: number,
@@ -41,10 +42,11 @@ export async function updateExistingContact(
     }
   }
   
+  */
 
-export async function deleteContact(itemId: string): Promise<void> {
+export async function deleteContact(itemId: string, itemEmail:any): Promise<void> {
   try {
-    await db.deleteContact(itemId);
+    await db.deleteContact(itemId, itemEmail);
   } catch (error) {
     throw error;
   }

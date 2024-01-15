@@ -4,7 +4,7 @@ import {
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import { createContact } from "../core";
+import { createContact, deleteContact } from "../core";
 import { Contact } from "../types";
 import {
   CognitoIdentityProvider,
@@ -110,13 +110,16 @@ export async function postContactHandler(
         console.log('existingCurrent.Username:', existingCurrent.Username);
         console.log('itemData.Email:', itemData.Email);
         console.log('itemData.UserEmail:', itemData.UserEmail);
-        const updatedExistingContact = await updateExistingContact(existingContactInDB.ContactId, {
-          Owing: parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing) || '0.00',
+        await deleteContact(existingContactInDB.ContactId, existingContactInDB.UserEmail);
+        const userB = await createContact({
+          Email: currentEmail,
           Name: existingContactInDB.Name,
-          Email: existingContactInDB.Email,
+          UserName: existingContactInDB.UserName,
+          UserEmail: existingContactInDB.UserEmail,
+          ContactId: existingCurrent.Username,
           Phone: existingContactInDB.Phone,
+          Owing: parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing) || '0.00',
         });
-        
         return HttpResponses.created({ UserA: userA, UserB: "updated" });
         
       }

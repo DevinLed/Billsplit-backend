@@ -21,6 +21,7 @@ export async function deleteContactHandler(
   };
 
   const itemId = event.pathParameters?.ContactId;
+  const itemEmail = event.pathParameters?.UserEmail;
 
   if (!itemId) {
     const res = {
@@ -37,7 +38,7 @@ export async function deleteContactHandler(
   try {
     console.log(`Deleting contact with id: ${itemId}`);
 
-    await deleteContact(itemId);
+    await deleteContact(itemId, itemEmail);
 
     const res = {
       ...response,
