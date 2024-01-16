@@ -16,7 +16,7 @@ import { Contact } from "../types";
 
 const ddb = new DynamoDBClient({ region: "us-east-1" });
 const docClient = DynamoDBDocumentClient.from(ddb);
-const TableName = "Contacts";
+const TableName = "ContactsTableV2";
 
 export async function createContact(contact: Contact): Promise<Contact> {
   try {
@@ -63,7 +63,10 @@ export async function updateContact(contact: Contact): Promise<Contact> {
   }
 }
 
-export async function deleteContact(ContactId: string, UserEmail: any): Promise<void> {
+export async function deleteContact(
+  ContactId: string,
+  UserEmail: any
+): Promise<void> {
   const params = {
     TableName,
     Key: {
@@ -94,14 +97,16 @@ export async function listContacts(): Promise<Contact[]> {
   }
 }
 
-
-export async function getContact(ContactId: string, UserEmail: string): Promise<Contact | null> {
+export async function getContact(
+  ContactId: string,
+  UserEmail: string
+): Promise<Contact | null> {
   const params = {
     TableName,
-    KeyConditionExpression: 'ContactId = :contactId AND UserEmail = :userEmail',
+    KeyConditionExpression: "ContactId = :contactId AND UserEmail = :userEmail",
     ExpressionAttributeValues: {
-      ':contactId': ContactId,
-      ':userEmail': UserEmail,
+      ":contactId": ContactId,
+      ":userEmail": UserEmail,
     },
   };
 
@@ -118,16 +123,21 @@ export async function getContact(ContactId: string, UserEmail: string): Promise<
     throw error;
   }
 }
-export async function getExistingContact(ContactId: string, UserEmail: string): Promise<Contact | null> {
+export async function getExistingContact(
+  ContactId: string,
+  UserEmail: string
+): Promise<Contact | null> {
   const params = {
     TableName,
-    KeyConditionExpression: 'ContactId = :contactId AND UserEmail = :userEmail',
+    KeyConditionExpression: "ContactId = :contactId AND UserEmail = :userEmail",
     ExpressionAttributeValues: {
-      ':contactId': ContactId,
-      ':userEmail': UserEmail,
+      ":contactId": ContactId,
+      ":userEmail": UserEmail,
     },
   };
 
+
+  console.log("getExistingContact Parameters:", params);
   try {
     const command = new QueryCommand(params);
     const data: QueryCommandOutput = await docClient.send(command);
@@ -142,17 +152,20 @@ export async function getExistingContact(ContactId: string, UserEmail: string): 
   }
 }
 export async function updateExistingContact(
-  ContactId: string, 
-  updatedFields: Partial<Pick<Contact,'Owing' | 'Name' | 'Email' | 'Phone' | 'UserEmail'>>
+  ContactId: string,
+  updatedFields: Partial<
+    Pick<Contact, "Owing" | "Name" | "Email" | "Phone" | "UserEmail">
+  >
 ): Promise<Contact | null> {
-  console.log('Update operation parameters:', { ContactId, updatedFields });
+  console.log("Update operation parameters:", { ContactId, updatedFields });
 
   const params = {
     TableName,
     Key: {
-      'ContactId': ContactId,
+      ContactId: ContactId,
     },
-    UpdateExpression: "SET #Owing = :Owing, #Name = :Name, #Email = :Email, #Phone = :Phone",
+    UpdateExpression:
+      "SET #Owing = :Owing, #Name = :Name, #Email = :Email, #Phone = :Phone",
     ExpressionAttributeNames: {
       "#Owing": "Owing",
       "#Name": "Name",
@@ -171,23 +184,19 @@ export async function updateExistingContact(
   try {
     const command = new UpdateCommand(params);
     const data: any = await docClient.send(command);
-    console.log('Update successful. Updated contact:', data.Attributes);
+    console.log("Update successful. Updated contact:", data.Attributes);
     return data.Attributes as Contact;
   } catch (error) {
-    console.error('Error updating contact:', error);
-    console.log('Input parameters:', { ContactId, updatedFields });
-    console.log('ExpressionAttributeValues:', params.ExpressionAttributeValues);
-    console.log('ExpressionAttributeNames:', params.ExpressionAttributeNames);
+    console.error("Error updating contact:", error);
+    console.log("Input parameters:", { ContactId, updatedFields });
+    console.log("ExpressionAttributeValues:", params.ExpressionAttributeValues);
+    console.log("ExpressionAttributeNames:", params.ExpressionAttributeNames);
 
     throw error;
   }
 }
 
-
-
-
 const table = {
-  id: '', // PK, Current/active user id
-  contactId: '', // SK, cognito id of other person, or uuid of other person
-}
-
+  id: "", // PK, Current/active user id
+  contactId: "", // SK, cognito id of other person, or uuid of other person
+};

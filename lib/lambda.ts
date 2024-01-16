@@ -18,7 +18,7 @@ export class LambdaLayer extends Construct {
   constructor(scope: Construct, id: string, props: LambdaLayerProps) {
     super(scope, id);
 
-    const { tableContacts, tableTransactions } = props.dynamo;
+    const { tableContacts, tableTransactions, tableContactsV2 } = props.dynamo;
 
     /**
      * Functions
@@ -78,5 +78,10 @@ export class LambdaLayer extends Construct {
     tableContacts.grantReadWriteData(this.functionTransactionsPost);
     tableTransactions.grantReadWriteData(this.functionTransactionsGet);
     tableTransactions.grantReadWriteData(this.functionTransactionsPost);
+    tableContactsV2.grantReadWriteData(this.functionContactsGet);
+    tableContactsV2.grantReadWriteData(this.functionContactsPost);
+    tableContactsV2.grantReadWriteData(this.functionContactsDelete);
+    tableContactsV2.grantReadWriteData(this.functionContactsPut);
+    tableContactsV2.grantReadWriteData(this.functionTransactionsPost);
   }
 }

@@ -1,15 +1,23 @@
-// http/handler.ts
-
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+} from "aws-lambda";
 
 export class Handler {
-  private listeners: { [method: string]: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> };
+  private listeners: {
+    [method: string]: (
+      event: APIGatewayProxyEvent
+    ) => Promise<APIGatewayProxyResult>;
+  };
 
   constructor() {
     this.listeners = {};
   }
 
-  addHandler(method: string, fn: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>): Handler {
+  addHandler(
+    method: string,
+    fn: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
+  ): Handler {
     this.listeners[method] = fn;
     return this;
   }

@@ -5,6 +5,8 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 export class DynamoLayer extends cdk.Stack {
   readonly tableTransactions: dynamodb.Table;
   readonly tableContacts: dynamodb.Table;
+  
+  readonly tableContactsV2: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -63,10 +65,6 @@ export class DynamoLayer extends cdk.Stack {
         name: "ContactId",
         type: dynamodb.AttributeType.STRING,
       },
-      sortKey: {
-        name: "UserEmail",
-        type: dynamodb.AttributeType.STRING,
-      },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
@@ -77,5 +75,26 @@ export class DynamoLayer extends cdk.Stack {
       Phone: dynamodb.AttributeType.STRING,
       Owing: dynamodb.AttributeType.STRING,
     });
+
+    this.tableContactsV2 = new dynamodb.Table(this, "ContactsTableV2", {
+      tableName: "ContactsTableV2",
+      partitionKey: {
+        name: "ContactId",
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: "UserEmail",
+        type: dynamodb.AttributeType.STRING,
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+    this.tableContactsV2.node.addMetadata("attributeDefinitions", {
+      Name: dynamodb.AttributeType.STRING,
+      Email: dynamodb.AttributeType.STRING,
+      Phone: dynamodb.AttributeType.STRING,
+      Owing: dynamodb.AttributeType.STRING,
+    });
   }
+  
 }
