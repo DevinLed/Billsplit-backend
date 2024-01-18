@@ -37,6 +37,7 @@ export class RestApi extends Construct {
      */
     const contactResource = this.api.root.addResource("contacts");
     const contactIdResource = contactResource.addResource("{ContactId}");
+    const contactUserEmailResource = contactIdResource.addResource("{UserEmail}");
     
     const transactionResource = this.api.root.addResource("transaction");
     const transactionIdResource = transactionResource.addResource("{transactionId}")
@@ -71,6 +72,7 @@ export class RestApi extends Construct {
     contactResource.addMethod("PUT", contactsPutLambda);
     contactIdResource.addMethod("PUT", contactsPutLambda);
     contactIdResource.addMethod("DELETE", contactsDeleteLambda);
+    contactUserEmailResource.addMethod("DELETE", contactsDeleteLambda);
     transactionResource.addMethod("GET", transactionsGetLambda)
     transactionResource.addMethod("POST", transactionsPostLambda)
     transactionIdResource.addMethod("GET", transactionsGetLambda);

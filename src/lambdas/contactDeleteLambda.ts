@@ -37,7 +37,7 @@ export async function deleteContactHandler(
 
   try {
     console.log(`Deleting contact with id: ${itemId}`);
-
+    console.log("ItemEmail?", itemEmail);
     await deleteContact(itemId, itemEmail);
 
     const res = {
