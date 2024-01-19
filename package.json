@@ -6,7 +6,10 @@
   },
   "scripts": {
     "build": "ts-node scripts/buildLambdas.ts",
+    "clean": "del /Q deployment.zip",
     "bundle": "powershell Compress-Archive dist deployment.zip",
+    "deploy": "cdk deploy -all --app 'node bin/billsplit-backend.js'",
+    "pushup": "npm run build && npm run clean && npm run bundle && npm run deploy",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"

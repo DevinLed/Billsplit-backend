@@ -6,7 +6,7 @@ import {
 import { deleteContact } from "../core/contacts";
 
 import { handlerFactory } from "../http/handler";
-import { HttpResponses, HttpStatus } from "../http/utils"; 
+import { HttpResponses, HttpStatus } from "../http/utils";
 
 export async function deleteContactHandler(
   event: APIGatewayProxyEvent
@@ -70,5 +70,7 @@ export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
+  console.log(`Executing ${event.httpMethod} request`);
+  console.log(`Event: ${JSON.stringify(event)}`);
   return await customHandler.execute(event);
 };
