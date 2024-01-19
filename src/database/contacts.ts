@@ -123,34 +123,42 @@ export async function getContact(
     throw error;
   }
 }
-export async function getExistingContact(
-  ContactId: string,
+export async function getExistingContactByEmail(
+  Email: string,
   UserEmail: string
 ): Promise<Contact | null> {
   const params = {
     TableName,
-    KeyConditionExpression: "ContactId = :contactId AND UserEmail = :userEmail",
+    FilterExpression: "Email = :email AND UserEmail = :userEmail",
     ExpressionAttributeValues: {
-      ":contactId": ContactId,
-      ":userEmail": UserEmail,
+      ":email": UserEmail,
+      ":userEmail": Email,
     },
   };
 
+  console.log("getExistingContactByEmail Parameters:", params);
 
-  console.log("getExistingContact Parameters:", params);
   try {
-    const command = new QueryCommand(params);
-    const data: QueryCommandOutput = await docClient.send(command);
+    const command = new ScanCommand(params);
+    const data: ScanCommandOutput = await docClient.send(command);
+
+    console.log("getExistingContactByEmail Result:", data);
 
     if (data.Items && data.Items.length > 0) {
+      console.log("getExistingContactByEmail Found:", data.Items[0]);
       return data.Items[0] as Contact;
     } else {
+      console.log("getExistingContactByEmail Not Found");
       return null;
     }
   } catch (error) {
+    console.error("getExistingContactByEmail Error:", error);
     throw error;
   }
 }
+
+
+
 export async function updateExistingContact(
   ContactId: string,
   updatedFields: Partial<

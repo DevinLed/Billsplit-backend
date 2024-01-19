@@ -1,5 +1,3 @@
-// http/utils.ts
-
 import { APIGatewayProxyResult } from "aws-lambda";
 
 enum HttpStatus {

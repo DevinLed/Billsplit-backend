@@ -13,13 +13,18 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 import { HttpResponses, HttpStatus } from "../http/utils";
 import { Handler, handlerFactory } from "../http/handler";
-import { getExistingContact, updateExistingContact } from '../database/contacts';
+import {
+  getExistingContactByEmail,
+  updateExistingContact,
+} from "../database/contacts";
 
 const cognitoIdentityProvider = new CognitoIdentityProvider({
-  region: 'us-east-1',
+  region: "us-east-1",
 });
 
-async function listUsers(command: ListUsersCommandInput): Promise<ListUsersCommandOutput> {
+async function listUsers(
+  command: ListUsersCommandInput
+): Promise<ListUsersCommandOutput> {
   return cognitoIdentityProvider.listUsers(command);
 }
 
@@ -40,13 +45,13 @@ export async function postContactHandler(
     }
 
     const { ...itemData } = JSON.parse(event.body);
-    
+
     let existingUser;
     let existingCurrent;
 
     const currentEmail = itemData.UserEmail;
 
-    const userPoolId = 'us-east-1_whmGZCnxe';
+    const userPoolId = "us-east-1_whmGZCnxe";
     const filter = `email = "${itemData.Email}"`;
     const filterCurrent = `email = "${itemData.UserEmail}"`;
 
@@ -66,7 +71,7 @@ export async function postContactHandler(
         existingUser = users.Users[0];
       }
     } catch (error: any) {
-      console.error('Error querying Cognito:', error);
+      console.error("Error querying Cognito:", error);
       return HttpResponses.internalServerError("Internal Server Error");
     }
     try {
@@ -74,13 +79,12 @@ export async function postContactHandler(
 
       if (users?.Users && users.Users.length > 0) {
         existingCurrent = users.Users[0];
-        console.log('Cognito ID?', existingCurrent.Username);
+        console.log("Cognito ID?", existingCurrent.Username);
       }
     } catch (error: any) {
-      console.error('Error querying Cognito:', error);
+      console.error("Error querying Cognito:", error);
       return HttpResponses.internalServerError("Internal Server Error");
     }
-   
 
     if (existingUser) {
       const contactId = existingUser.Username;
@@ -89,10 +93,18 @@ export async function postContactHandler(
         ...itemData,
         UserEmail: currentEmail,
         ContactId: contactId,
-        UserName: itemData.UserName
+        UserName: itemData.UserName,
       });
-      const existingContactInDB = await getExistingContact(itemData.Email, itemData.UserEmail);
-      console.log('existingContactInDB?', existingContactInDB);
+      console.log(
+        "itemData.Email, itemData.UserEmail:",
+        itemData.Email,
+        itemData.UserEmail
+      );
+      const existingContactInDB = await getExistingContactByEmail(
+        itemData.Email,
+        itemData.UserEmail
+      );
+      console.log("existingContactInDB?", existingContactInDB);
       if (!existingContactInDB) {
         const oppositeOwing = -parseFloat(itemData.Owing);
         const userB = await createContact({
@@ -101,16 +113,19 @@ export async function postContactHandler(
           UserName: itemData.Name,
           UserEmail: itemData.Email,
           ContactId: existingCurrent.Username,
-          Phone: 'Enter phone #', 
-          Owing: oppositeOwing || '0.00', 
+          Phone: "Enter phone #",
+          Owing: oppositeOwing || "0.00",
         });
 
         return HttpResponses.created({ UserA: userA, UserB: userB });
       } else {
-        console.log('existingCurrent.Username:', existingCurrent.Username);
-        console.log('itemData.Email:', itemData.Email);
-        console.log('itemData.UserEmail:', itemData.UserEmail);
-        await deleteContact(existingContactInDB.ContactId, existingContactInDB.UserEmail);
+        console.log("existingCurrent.Username:", existingCurrent.Username);
+        console.log("itemData.Email:", itemData.Email);
+        console.log("itemData.UserEmail:", itemData.UserEmail);
+        await deleteContact(
+          existingContactInDB.ContactId,
+          existingContactInDB.UserEmail
+        );
         const userB = await createContact({
           Email: currentEmail,
           Name: existingContactInDB.Name,
@@ -118,14 +133,19 @@ export async function postContactHandler(
           UserEmail: existingContactInDB.UserEmail,
           ContactId: existingCurrent.Username,
           Phone: existingContactInDB.Phone,
-          Owing: parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing) || '0.00',
+          Owing:
+            parseFloat(existingContactInDB.Owing) -
+              parseFloat(itemData.Owing) || "0.00",
         });
         return HttpResponses.created({ UserA: userA, UserB: "updated" });
-        
       }
     } else {
       const contactId = uuidv4();
-      const user = await createContact({ ...itemData, ContactId: contactId, UserEmail: currentEmail });
+      const user = await createContact({
+        ...itemData,
+        ContactId: contactId,
+        UserEmail: currentEmail,
+      });
 
       return HttpResponses.created({ UserA: user, UserB: null });
     }
@@ -135,11 +155,12 @@ export async function postContactHandler(
   }
 }
 
-
 export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
+  console.log(`Executing ${event.httpMethod} request`);
+  console.log(`Event: ${JSON.stringify(event)}`);
   return await handlerFactory()
     .addHandler("POST", postContactHandler)
     .execute(event);
