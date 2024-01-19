@@ -1,11 +1,24 @@
 {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": "cognito-idp:ListUsers",
-        "Resource": "*"
-      }
-    ]
-  }
-  
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "dynamodb:Query",
+      "Resource": "arn:aws:sts::365430784720:assumed-role/BillsplitBackendStack-LambdaLayerContactsPostServic-DW1ebhczlgAh/BillsplitBackendStack-LambdaLayerContactsPost0ACEF-hLh74YkIIDaO"
+},
+    {
+      "Effect": "Allow",
+      "Action": "cognito-idp:ListUsers",
+      "Resource": "*"
+    }
+    ,
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+    
+  ]
+}

@@ -1,6 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as iam from "aws-cdk-lib/aws-iam"; 
 
 export class DynamoLayer extends cdk.Stack {
   readonly tableTransactions: dynamodb.Table;
@@ -89,7 +90,14 @@ export class DynamoLayer extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
+    
+    const lambdaRole = new iam.Role(this, "LambdaRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+    });
+    
+    this.tableContactsV2.grant(lambdaRole, "dynamodb:Query");
     this.tableContactsV2.node.addMetadata("attributeDefinitions", {
+      
       Name: dynamodb.AttributeType.STRING,
       Email: dynamodb.AttributeType.STRING,
       Phone: dynamodb.AttributeType.STRING,
