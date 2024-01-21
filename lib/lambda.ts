@@ -34,7 +34,6 @@ export class LambdaLayer extends Construct {
       handler: "dist/contactPostLambda.handler",
       code: lambda.Code.fromAsset("./deployment.zip"),
     });
-    
 
     this.functionContactsPut = new lambda.Function(this, "ContactsPut", {
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -82,6 +81,10 @@ export class LambdaLayer extends Construct {
     tableContactsV2.grantReadWriteData(this.functionContactsPost);
     tableContactsV2.grantReadWriteData(this.functionContactsDelete);
     tableContactsV2.grantReadWriteData(this.functionContactsPut);
+    tableContactsV2.grantReadWriteData(this.functionTransactionsPost);
+    tableTransactions.grantReadWriteData(this.functionTransactionsGet);
+    tableTransactions.grantReadWriteData(this.functionTransactionsPost);
+    tableContactsV2.grantReadWriteData(this.functionTransactionsGet);
     tableContactsV2.grantReadWriteData(this.functionTransactionsPost);
   }
 }

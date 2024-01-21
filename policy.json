@@ -3,15 +3,27 @@
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "dynamodb:Query",
-      "Resource": "arn:aws:sts::365430784720:assumed-role/BillsplitBackendStack-LambdaLayerContactsPostServic-DW1ebhczlgAh/BillsplitBackendStack-LambdaLayerContactsPost0ACEF-hLh74YkIIDaO"
-},
+      "Action": [
+        "dynamodb:BatchGet*",
+        "dynamodb:DescribeStream",
+        "dynamodb:DescribeTable",
+        "dynamodb:Get*",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:BatchWrite*",
+        "dynamodb:CreateTable",
+        "dynamodb:Delete*",
+        "dynamodb:Update*",
+        "dynamodb:PutItem"
+      ],
+      "Resource": "arn:aws:dynamodb:us-east-1:365430784720:table/ContactsTableV2/index/*"
+    },
+    
     {
       "Effect": "Allow",
       "Action": "cognito-idp:ListUsers",
       "Resource": "*"
-    }
-    ,
+    },
     {
       "Effect": "Allow",
       "Principal": {
@@ -19,6 +31,5 @@
       },
       "Action": "sts:AssumeRole"
     }
-    
   ]
 }

@@ -90,6 +90,18 @@ export class DynamoLayer extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
+    this.tableContactsV2.addGlobalSecondaryIndex({
+      indexName: "UserEmail-Email-Index",
+      partitionKey: {
+        name: "UserEmail",
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: "Email",
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
     
     const lambdaRole = new iam.Role(this, "LambdaRole", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
