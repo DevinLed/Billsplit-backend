@@ -17,6 +17,8 @@ import {
   getExistingContactByEmail,
   updateExistingContact,
 } from "../database/contacts";
+import notificationapi from 'notificationapi-node-server-sdk';
+import { SendUserUpdate } from "../core/NotificationAPI";
 
 const cognitoIdentityProvider = new CognitoIdentityProvider({
   region: "us-east-1",
@@ -45,6 +47,7 @@ export async function postContactHandler(
     }
 
     const { ...itemData } = JSON.parse(event.body);
+    
 
     let existingUser;
     let existingCurrent;
@@ -89,24 +92,31 @@ export async function postContactHandler(
     if (existingUser) {
       const contactId = existingUser.Username;
 
+      const existingContactInDB = await getExistingContactByEmail(
+        itemData.Email,
+        itemData.UserEmail
+      );
+      
+      const oppositeOwing = -parseFloat(itemData.Owing);
       const userA = await createContact({
         ...itemData,
         UserEmail: currentEmail,
         ContactId: contactId,
         UserName: itemData.UserName,
+        Owing: existingContactInDB
+      ? -(
+          parseFloat(existingContactInDB.Owing) -
+          parseFloat(itemData.Owing)
+        ).toString()
+       || itemData.Owing || "0.00" : itemData.Owing
       });
       console.log(
         "itemData.Email, itemData.UserEmail:",
         itemData.Email,
         itemData.UserEmail
       );
-      const existingContactInDB = await getExistingContactByEmail(
-        itemData.Email,
-        itemData.UserEmail
-      );
       console.log("existingContactInDB?", existingContactInDB);
       if (!existingContactInDB) {
-        const oppositeOwing = -parseFloat(itemData.Owing);
         const userB = await createContact({
           Email: currentEmail,
           Name: itemData.UserName,
@@ -117,6 +127,9 @@ export async function postContactHandler(
           Owing: oppositeOwing || "0.00",
         });
 
+        console.log("Sending notification with itemData:", itemData);
+        console.log("Sending notification with contactId:", contactId);
+        await SendUserUpdate(itemData);
         return HttpResponses.created({ UserA: userA, UserB: userB });
       } else {
         console.log("existingCurrent.Username:", existingCurrent.Username);
@@ -137,9 +150,12 @@ export async function postContactHandler(
             parseFloat(existingContactInDB.Owing) -
               parseFloat(itemData.Owing) || "0.00",
         });
-        return HttpResponses.created({ UserA: userA, UserB: "updated" });
+        return HttpResponses.created({ UserA: userA, UserB: "updated", 
+        contactAlreadyExists: true, });
       }
     } else {
+      console.log("Sending notification with itemData:", itemData);
+      await SendUserUpdate(itemData);
       const contactId = uuidv4();
       const user = await createContact({
         ...itemData,
@@ -147,7 +163,8 @@ export async function postContactHandler(
         UserEmail: currentEmail,
       });
 
-      return HttpResponses.created({ UserA: user, UserB: null });
+      return HttpResponses.created({ UserA: user, UserB: null, 
+        contactAlreadyExists: false, });
     }
   } catch (error) {
     console.error("Error processing request:", error);

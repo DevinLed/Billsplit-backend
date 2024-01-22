@@ -59,10 +59,10 @@ export async function updateContact(contact: Contact): Promise<Contact> {
     const result = await docClient.send(command);
     return result.Attributes as Contact;
   } catch (error) {
+    console.error("Error updating item:", error);
     throw error;
   }
 }
-
 export async function deleteContact(
   ContactId: string,
   UserEmail: any
