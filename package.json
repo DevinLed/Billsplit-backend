@@ -8,8 +8,7 @@
     "build": "ts-node scripts/buildLambdas.ts",
     "clean": "del /Q deployment.zip",
     "bundle": "powershell Compress-Archive dist deployment.zip",
-    "deploy": "cdk deploy -all --app 'node bin/billsplit-backend.js'",
-    "pushup": "npm run build && npm run clean && npm run bundle && npm run deploy",
+    "pushup": "npm run build && npm run clean && npm run bundle",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
@@ -31,10 +30,12 @@
     "@aws-sdk/client-dynamodb": "^3.428.0",
     "@aws-sdk/lib-dynamodb": "^3.441.0",
     "@types/uuid": "^9.0.6",
-    "aws-cdk-lib": "^2.110.1",
+    "aws-cdk-lib": "^2.122.0",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
     "jszip": "^3.10.1",
+    "notificationapi-js-client-sdk": "^4.4.0",
+    "notificationapi-node-server-sdk": "^0.18.0",
     "source-map-support": "^0.5.21",
     "uuid": "^9.0.1"
   }
