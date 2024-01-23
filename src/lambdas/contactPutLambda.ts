@@ -7,6 +7,7 @@ import { updateContact } from "../core";
 import { getExistingContactByEmail } from "../database/contacts";
 import { HttpResponses } from "../http/utils";
 import { handlerFactory } from "../http/handler";
+import { SendUserUpdate } from "../core/NotificationAPI";
 
 
 export async function putContactHandler(
@@ -32,7 +33,8 @@ export async function putContactHandler(
 
     if (reciprocalContact) {
       const newReciprocalOwing = -parseFloat(itemData.Owing) || "0.00";
-
+      
+      await SendUserUpdate(itemData);
       await updateContact({
         ...reciprocalContact,
         Owing: newReciprocalOwing.toString(),

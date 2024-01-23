@@ -17,7 +17,6 @@ import {
   getExistingContactByEmail,
   updateExistingContact,
 } from "../database/contacts";
-import notificationapi from 'notificationapi-node-server-sdk';
 import { SendUserUpdate } from "../core/NotificationAPI";
 
 const cognitoIdentityProvider = new CognitoIdentityProvider({
@@ -154,8 +153,6 @@ export async function postContactHandler(
         contactAlreadyExists: true, });
       }
     } else {
-      console.log("Sending notification with itemData:", itemData);
-      await SendUserUpdate(itemData);
       const contactId = uuidv4();
       const user = await createContact({
         ...itemData,
