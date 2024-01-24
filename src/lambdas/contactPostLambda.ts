@@ -17,7 +17,7 @@ import {
   getExistingContactByEmail,
   updateExistingContact,
 } from "../database/contacts";
-import { SendUserUpdate } from "../core/NotificationAPI";
+import { SendUserAdd } from "../core/NotificationAPI";
 
 const cognitoIdentityProvider = new CognitoIdentityProvider({
   region: "us-east-1",
@@ -128,7 +128,7 @@ export async function postContactHandler(
 
         console.log("Sending notification with itemData:", itemData);
         console.log("Sending notification with contactId:", contactId);
-        await SendUserUpdate(itemData);
+        await SendUserAdd(itemData);
         return HttpResponses.created({ UserA: userA, UserB: userB });
       } else {
         console.log("existingCurrent.Username:", existingCurrent.Username);

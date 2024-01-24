@@ -21,9 +21,10 @@ export async function putContactHandler(
     const itemData = JSON.parse(event.body);
 
     console.log(`Updating contact with id: ${itemData.ContactId}`);
-
+    console.log(`testing to see if it reaches here`);
     const existingContact = await updateContact(itemData);
-
+    
+    console.log(`testing to see if it reaches here too`);
     const reciprocalContact = await getExistingContactByEmail(
       itemData.Email,
       itemData.UserEmail
