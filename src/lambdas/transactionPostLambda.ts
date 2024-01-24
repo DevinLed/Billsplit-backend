@@ -8,10 +8,12 @@ import {
 import { Transaction } from "../types";
 import { HttpResponses, HttpStatus } from "../http/utils"; 
 import { handlerFactory } from "../http/handler";
+
+import { SendTransactionUpdate } from "../core/NotificationAPI";
 const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const tableName = "Transactions";
-const contactsTableName = "Contacts"; 
+const contactsTableName = "ContactsTableV2"; 
 const createTransactionItem = async (
   transaction: Transaction
 ): Promise<void> => {
@@ -61,7 +63,7 @@ export async function postTransactionHandler(
     return res;
   }
 
-  const { loggedInUserEmail, personEmail, selectedValue, personOwing, receiptTotal, personReceiptAmount, ...transaction } =
+  const { loggedInUserEmail, personEmail, selectedValue, personOwing, receiptTotal, personReceiptAmount, personName, ...transaction } =
     JSON.parse(event.body);
 
     console.log("selectedValue?", selectedValue);
@@ -78,6 +80,8 @@ export async function postTransactionHandler(
       DebtorId: debtorId,
       personReceiptAmount: personReceiptAmount,
     });
+
+    await SendTransactionUpdate(personEmail, personReceiptAmount, personName);
     console.log("loggedInUserEmail:",loggedInUserEmail);
     console.log("PersonEmail:",personEmail);
     console.log("payerID:", payerId);

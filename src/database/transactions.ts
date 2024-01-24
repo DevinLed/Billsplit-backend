@@ -18,7 +18,7 @@ const TableName = "Transactions";
 export async function createTransaction(transaction: Transaction): Promise<Transaction> {
   try {
     const command = new PutCommand({
-      TableName,
+      TableName: TableName,
       Item: transaction,
     });
     await docClient.send(command);
