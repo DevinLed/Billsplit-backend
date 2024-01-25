@@ -34,7 +34,6 @@ export async function putContactHandler(
 
     if (reciprocalContact) {
       const newReciprocalOwing = -parseFloat(itemData.Owing) || "0.00";
-      
       await SendUserUpdate(itemData);
       await updateContact({
         ...reciprocalContact,

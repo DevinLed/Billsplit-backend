@@ -6,6 +6,8 @@ export interface Transaction {
     Merchant: string;
     Date: Date;
     SelectedValue: string;
+    Email: string;
+    UserEmail: string;
 }
 
 export interface TransactionItem {

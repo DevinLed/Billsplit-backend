@@ -1,19 +1,24 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  PutCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
 import { Transaction } from "../types";
-import { HttpResponses, HttpStatus } from "../http/utils"; 
+import { HttpResponses, HttpStatus } from "../http/utils";
 import { handlerFactory } from "../http/handler";
 
+import { setPostTransactionExecuted } from "../core/sharedState";
 import { SendTransactionUpdate } from "../core/NotificationAPI";
 const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const tableName = "Transactions";
-const contactsTableName = "ContactsTableV2"; 
+const contactsTableName = "ContactsTableV2";
 const createTransactionItem = async (
   transaction: Transaction
 ): Promise<void> => {
@@ -39,7 +44,6 @@ const createTransactionItem = async (
 export async function postTransactionHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-  
   console.log("Received event:", JSON.stringify(event, null, 2));
 
   const response = {
@@ -63,27 +67,39 @@ export async function postTransactionHandler(
     return res;
   }
 
-  const { loggedInUserEmail, personEmail, selectedValue, personOwing, receiptTotal, personReceiptAmount, personName, ...transaction } =
-    JSON.parse(event.body);
+  const {
+    loggedInUserEmail,
+    personEmail,
+    selectedValue,
+    personOwing,
+    receiptTotal,
+    personReceiptAmount,
+    personName,
+    ...transaction
+  } = JSON.parse(event.body);
 
-    console.log("selectedValue?", selectedValue);
+  console.log("selectedValue?", selectedValue);
   // Determine the PayerId based on selectedValue
   const payerId = selectedValue === "you" ? loggedInUserEmail : personEmail;
   const debtorId = selectedValue === "you" ? personEmail : loggedInUserEmail;
 
   // Create a new Transaction
   try {
-    
     await createTransactionItem({
       ...transaction,
       PayerId: payerId,
       DebtorId: debtorId,
       personReceiptAmount: personReceiptAmount,
+      loggedInUserEmail: loggedInUserEmail,
+      personEmail: personEmail,
     });
-
-    await SendTransactionUpdate(personEmail, personReceiptAmount, personName);
-    console.log("loggedInUserEmail:",loggedInUserEmail);
-    console.log("PersonEmail:",personEmail);
+    setPostTransactionExecuted();
+    await SendTransactionUpdate(
+      personEmail,
+      personReceiptAmount,
+      personName);
+    console.log("loggedInUserEmail:", loggedInUserEmail);
+    console.log("PersonEmail:", personEmail);
     console.log("payerID:", payerId);
     console.log("debtorID:", debtorId);
     console.log("personOwing:", personOwing);
