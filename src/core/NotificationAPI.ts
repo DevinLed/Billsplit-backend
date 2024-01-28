@@ -1,20 +1,16 @@
 import notificationapi from "notificationapi-node-server-sdk";
 
-import { setPostTransactionExecuted } from "./sharedState";
+require('dotenv').config();
+const clientId = process.env.NOTIFICATIONAPI_CLIENT_ID as string;
+const clientSecret = process.env.NOTIFICATIONAPI_CLIENT_SECRET as string;
 
-import { getPostTransactionExecuted } from "./sharedState";
+notificationapi.init(clientId, clientSecret);
 
-notificationapi.init(
-  "49foj0su1nftfvk9p0rvmh31s1", // clientId
-  "13mbvbqgkcmaot1j393cle3gmgjapsm36jelpj5poop4smcmjt05" // clientSecret
-);
+
 export async function SendUserAdd(itemData) {
-    console.log("Sending user add notification with the following data:");
-    console.log("itemData:", itemData);
     const userID = itemData.Email;
     const contactName = itemData.UserName;
     const contactOwing = itemData.Owing;
-    console.log ("userID? contactName? contactOwing?", userID, contactName, contactOwing);
     await notificationapi.send({
       notificationId: "user_updated",
       templateId: "user-add",
@@ -25,14 +21,11 @@ export async function SendUserAdd(itemData) {
       },
       mergeTags: {
           item: contactName,
-          orderId: contactOwing,
+          owing: contactOwing,
       },
     });
   }
   export async function SendUserUpdate(itemData) {
-    const notificationSelected = !getPostTransactionExecuted();
-  
-    if (notificationSelected) {
       console.log("Sending user update notification with the following data:");
       console.log("itemData:", itemData);
       const userID = itemData.Email;
@@ -52,9 +45,6 @@ export async function SendUserAdd(itemData) {
           orderId: contactOwing,
         },
       });
-    } else {
-      return;
-    }
   }
   
 
