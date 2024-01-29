@@ -4,13 +4,17 @@ import {
   Context,
 } from "aws-lambda";
 import { deleteContact } from "../core/contacts";
-
 import { handlerFactory } from "../http/handler";
 import { HttpResponses, HttpStatus } from "../http/utils";
+import pino from 'pino';
+
+const logger = pino();
 
 export async function deleteContactHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
+  logger.info('deleteContactHandler invoked');
+  
   const response = {
     statusCode: 500,
     body: "",
@@ -30,14 +34,13 @@ export async function deleteContactHandler(
       body: JSON.stringify({ error: "Invalid request. ContactId is missing." }),
     };
 
-    console.log(JSON.stringify(res, null, 2));
-
+    logger.info('Invalid request. ContactId is missing', res);
     return res;
   }
 
   try {
-    console.log(`Deleting contact with id: ${itemId}`);
-    console.log("ItemEmail?", itemEmail);
+    logger.info(`Deleting contact with id: ${itemId}`);
+    logger.info("ItemEmail?", itemEmail);
     await deleteContact(itemId, itemEmail);
 
     const res = {
@@ -45,11 +48,10 @@ export async function deleteContactHandler(
       statusCode: 204,
     };
 
-    console.log(JSON.stringify(res, null, 2));
-
+    logger.info('Contact deleted successfully', res);
     return res;
   } catch (error) {
-    console.error("Error deleting item:", error);
+    logger.error('Error deleting item:', error);
 
     const res = {
       ...response,
@@ -57,11 +59,11 @@ export async function deleteContactHandler(
       body: JSON.stringify({ error: "Failed to delete item." }),
     };
 
-    console.log(JSON.stringify(res, null, 2));
-
+    logger.error('Failed to delete item', res);
     return res;
   }
 }
+
 const customHandler = handlerFactory();
 
 customHandler.addHandler("DELETE", deleteContactHandler);
@@ -70,7 +72,7 @@ export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
-  console.log(`Executing ${event.httpMethod} request`);
-  console.log(`Event: ${JSON.stringify(event)}`);
+  logger.info(`Executing ${event.httpMethod} request for path ${event.path}`);
+  logger.info(`Request Event: ${JSON.stringify(event)}`);
   return await customHandler.execute(event);
 };
