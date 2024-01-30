@@ -1,47 +1,36 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import { Transaction } from "../types";
 import { listTransactions } from "../core/transactions";
-import { HttpResponses, HttpStatus } from "../http/utils"; 
+import { HttpResponses } from "../http/utils";
 import { handlerFactory } from "../http/handler";
+import pino from 'pino';
+
+const logger = pino();
+
 export async function getTransactionHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   try {
+    logger.info("Fetching transactions");
     const data = await listTransactions();
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data),
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,DELETE,PUT",
-      },
-    };
+
+    return HttpResponses.ok(data);
   } catch (error) {
-    console.error("Error fetching transactions:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Error fetching transactions" }),
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,DELETE,PUT",
-      },
-    };
+    logger.error("Error fetching transactions:", error);
+    return HttpResponses.internalServerError("Error fetching transactions");
   }
 }
 
 const customHandler = handlerFactory();
-
 customHandler.addHandler("GET", getTransactionHandler);
 
 export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
+  logger.info(`Executing GET request for path ${event.path}`);
   return await customHandler.execute(event);
 };
