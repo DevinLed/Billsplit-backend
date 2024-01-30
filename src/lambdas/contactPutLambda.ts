@@ -33,13 +33,12 @@ export async function putContactHandler(
     console.log(`Reciprocal Contact?`, reciprocalContact);
 
     if (reciprocalContact) {
-    await SendUserUpdate(itemData);
       const newReciprocalOwing = -parseFloat(itemData.Owing) || "0.00";
+      await SendUserUpdate(itemData);
       await updateContact({
         ...reciprocalContact,
         Owing: newReciprocalOwing.toString(),
       });
-      
     }
 
     const responsePayload = {

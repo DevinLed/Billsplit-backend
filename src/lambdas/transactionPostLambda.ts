@@ -13,6 +13,7 @@ import { Transaction } from "../types";
 import { HttpResponses, HttpStatus } from "../http/utils";
 import { handlerFactory } from "../http/handler";
 
+import { setPostTransactionExecuted } from "../core/sharedState";
 import { SendTransactionUpdate } from "../core/NotificationAPI";
 const dynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
 const documentClient = DynamoDBDocumentClient.from(dynamoDBClient);
@@ -92,6 +93,7 @@ export async function postTransactionHandler(
       loggedInUserEmail: loggedInUserEmail,
       personEmail: personEmail,
     });
+    setPostTransactionExecuted();
     await SendTransactionUpdate(
       personEmail,
       personReceiptAmount,
