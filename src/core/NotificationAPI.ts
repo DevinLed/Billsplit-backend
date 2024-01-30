@@ -9,6 +9,13 @@ export async function SendUserAdd(itemData) {
     const userID = itemData.Email;
     const contactName = itemData.UserName;
     const contactOwing = itemData.Owing;
+    let message;
+    if (parseFloat(contactOwing) < 0) {
+      message = 'set their owing amount to';
+    } else {
+      message = 'set your owing amount to';
+    }
+  
     await notificationapi.send({
       notificationId: "user_updated",
       templateId: "user-add",
@@ -19,6 +26,7 @@ export async function SendUserAdd(itemData) {
       },
       mergeTags: {
           item: contactName,
+          message: message,
           owing: contactOwing,
       },
     });
