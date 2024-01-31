@@ -68,8 +68,8 @@ export async function postTransactionHandler(
       loggedInUserEmail: loggedInUserEmail,
       personEmail: personEmail,
     });
-
-    await SendTransactionUpdate(personEmail, personReceiptAmount, personName);
+    const formattedAmount = parseFloat(personReceiptAmount).toFixed(2);
+    await SendTransactionUpdate(personEmail, formattedAmount, personName);
 
     logger.info("Transaction created successfully", {
       loggedInUserEmail,

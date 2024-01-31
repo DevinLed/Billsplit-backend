@@ -21,6 +21,8 @@ export async function putContactHandler(
     }
 
     const itemData = JSON.parse(event.body);
+      const postedTransaction = itemData.postedTransaction || false;
+      console.log('postedTransaction?', postedTransaction);
 
     logger.info(`Updating contact with id: ${itemData.ContactId}`);
 
@@ -35,7 +37,13 @@ export async function putContactHandler(
     logger.info(`Reciprocal Contact found:`, reciprocalContact);
 
     if (reciprocalContact) {
-      await SendUserUpdate(itemData);
+      if (postedTransaction === false) {
+          logger.error(`posted transaction is coming up as false`, postedTransaction);
+          await SendUserUpdate(itemData);
+      }
+      else{
+        logger.error(`posted transaction is coming up as true`, postedTransaction);
+      }
       const newReciprocalOwing = -parseFloat(itemData.Owing) || "0.00";
       await updateContact({
         ...reciprocalContact,
