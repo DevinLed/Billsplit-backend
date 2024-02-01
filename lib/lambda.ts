@@ -2,6 +2,8 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { DynamoLayer } from "./dynamo";
+import * as dotenv from 'dotenv';
+dotenv.config()
 
 interface LambdaLayerProps {
   dynamo: DynamoLayer;
@@ -17,6 +19,16 @@ export class LambdaLayer extends Construct {
 
   constructor(scope: Construct, id: string, props: LambdaLayerProps) {
     super(scope, id);
+
+    const clientId = process.env.NOTIFICATIONAPI_CLIENT_ID!
+    const clientSecret = process.env.NOTIFICATIONAPI_CLIENT_SECRET!
+
+    if (!clientId) {
+      throw new Error('Missing NOTIFICATIONAPI_CLIENT_ID')
+    } 
+    if (!clientSecret) {
+      throw new Error('Missing NOTIFICATIONAPI_CLIENT_ID')
+    }
 
     const { tableContacts, tableTransactions, tableContactsV2 } = props.dynamo;
 
@@ -39,6 +51,10 @@ export class LambdaLayer extends Construct {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: "dist/contactPutLambda.handler",
       code: lambda.Code.fromAsset("./deployment.zip"),
+      environment: {
+        NOTIFICATIONAPI_CLIENT_ID: process.env.NOTIFICATIONAPI_CLIENT_ID!, 
+        NOTIFICATIONAPI_CLIENT_SECRET: process.env.NOTIFICATIONAPI_CLIENT_SECRET!
+      }
     });
 
     this.functionContactsDelete = new lambda.Function(this, "ContactsDelete", {
@@ -64,6 +80,10 @@ export class LambdaLayer extends Construct {
         runtime: lambda.Runtime.NODEJS_18_X,
         handler: "dist/transactionPostLambda.handler",
         code: lambda.Code.fromAsset("./deployment.zip"),
+        environment: {
+          NOTIFICATIONAPI_CLIENT_ID: process.env.NOTIFICATIONAPI_CLIENT_ID!, 
+          NOTIFICATIONAPI_CLIENT_SECRET: process.env.NOTIFICATIONAPI_CLIENT_SECRET!,
+        }
       }
     );
 
