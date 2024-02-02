@@ -203,8 +203,3 @@ export async function updateExistingContact(
     throw error;
   }
 }
-
-const table = {
-  id: "", // PK, Current/active user id
-  contactId: "", // SK, cognito id of other person, or uuid of other person
-};

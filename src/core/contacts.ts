@@ -17,32 +17,6 @@ export async function updateContact(user: Contact): Promise<Contact> {
   }
 }
 
-/* To update - based on PK will not work
-export async function updateExistingContact(
-    Email: string,
-    Owing: number,
-    Name: string,
-    Phone: string,
-    UserEmail: any,
-    ContactId: string
-  ): Promise<Contact> {
-    try {
-      const updatedContact = await db.updateExistingContact(
-        ContactId,
-        UserEmail,
-      );
-  
-      if (!updatedContact) {
-        throw new Error("Failed to update contact");
-      }
-  
-      return updatedContact;
-    } catch (error) {
-      throw error;
-    }
-  }
-  
-  */
 
 export async function deleteContact(itemId: string, itemEmail:any): Promise<void> {
   try {

@@ -8,6 +8,8 @@ export interface Transaction {
     SelectedValue: string;
     Email: string;
     UserEmail: string;
+    Name: string;
+    ReceiptTotal: string;
 }
 
 export interface TransactionItem {
