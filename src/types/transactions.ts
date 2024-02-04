@@ -10,6 +10,7 @@ export interface Transaction {
     UserEmail: string;
     Name: string;
     ReceiptTotal: string;
+    Username: string;
 }
 
 export interface TransactionItem {

@@ -55,6 +55,7 @@ export async function postTransactionHandler(
       personReceiptAmount,
       personName,
       submissionArray,
+      loggedInUsername,
       ...transaction
     } = JSON.parse(event.body);
 
@@ -72,9 +73,11 @@ export async function postTransactionHandler(
       receiptTotal: receiptTotal,
       selectedValue: selectedValue,
       submissionArray: submissionArray,
+      loggedInUsername: loggedInUsername,
+      CreatedAt: new Date().toISOString(),
     });
     const formattedAmount = parseFloat(personReceiptAmount).toFixed(2);
-    await SendTransactionUpdate(personEmail, formattedAmount, personName);
+    await SendTransactionUpdate(personEmail, formattedAmount, loggedInUsername);
 
     logger.info("Transaction created successfully", {
       loggedInUserEmail,
@@ -86,6 +89,7 @@ export async function postTransactionHandler(
       receiptTotal,
       personReceiptAmount,
       submissionArray,
+      loggedInUsername,
     });
 
     return HttpResponses.created({ message: "Transaction created successfully" });
