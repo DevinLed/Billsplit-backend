@@ -60,10 +60,10 @@ export async function SendUserUpdate(itemData) {
 export async function SendTransactionUpdate(
   personEmail,
   personReceiptAmount,
-  personName
+  loggedInUsername
 ) {
   const userID = personEmail;
-  const contactName = personName;
+  const contactName = loggedInUsername;
   const contactOwing = personReceiptAmount;
   await notificationapi.send({
     notificationId: "user_updated",

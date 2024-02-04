@@ -39,12 +39,20 @@ export class LambdaLayer extends Construct {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: "dist/contactGetLambda.handler",
       code: lambda.Code.fromAsset("./deployment.zip"),
+      environment: {
+        NOTIFICATIONAPI_CLIENT_ID: process.env.NOTIFICATIONAPI_CLIENT_ID!, 
+        NOTIFICATIONAPI_CLIENT_SECRET: process.env.NOTIFICATIONAPI_CLIENT_SECRET!
+      }
     });
 
     this.functionContactsPost = new lambda.Function(this, "ContactsPost", {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: "dist/contactPostLambda.handler",
       code: lambda.Code.fromAsset("./deployment.zip"),
+      environment: {
+        NOTIFICATIONAPI_CLIENT_ID: process.env.NOTIFICATIONAPI_CLIENT_ID!, 
+        NOTIFICATIONAPI_CLIENT_SECRET: process.env.NOTIFICATIONAPI_CLIENT_SECRET!
+      }
     });
 
     this.functionContactsPut = new lambda.Function(this, "ContactsPut", {
@@ -61,6 +69,10 @@ export class LambdaLayer extends Construct {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: "dist/contactDeleteLambda.handler",
       code: lambda.Code.fromAsset("./deployment.zip"),
+      environment: {
+        NOTIFICATIONAPI_CLIENT_ID: process.env.NOTIFICATIONAPI_CLIENT_ID!, 
+        NOTIFICATIONAPI_CLIENT_SECRET: process.env.NOTIFICATIONAPI_CLIENT_SECRET!
+      }
     });
 
     this.functionTransactionsGet = new lambda.Function(
