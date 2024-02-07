@@ -79,3 +79,25 @@ export async function SendTransactionUpdate(
     },
   });
 }
+
+export async function SendContactEmail(itemData
+) {
+  const userID = itemData.personEmail;
+  const contactName = itemData.loggedInUsername;
+  const contactOwing = itemData.personReceiptAmount;
+  console.log("the things?", userID, contactName, contactOwing),
+  await notificationapi.send({
+    notificationId: "contactemail",
+    templateId: "default",
+    user: {
+      id: userID,
+      email: userID,
+      number: "+15005550006",
+    },
+    mergeTags: {
+      item: contactName,
+      orderId: contactOwing,
+    },
+  });
+}
+

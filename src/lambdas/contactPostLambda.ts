@@ -5,7 +5,7 @@ import { CognitoIdentityProvider, ListUsersCommandInput, ListUsersCommandOutput 
 import { HttpResponses } from "../http/utils";
 import { handlerFactory } from "../http/handler";
 import { getExistingContactByEmail } from "../database/contacts";
-import { SendUserAdd } from "../core/NotificationAPI";
+import { SendUserAdd, SendContactEmail } from "../core/NotificationAPI";
 import pino from 'pino';
 
 const logger = pino();
@@ -105,6 +105,7 @@ export async function postContactHandler(event: APIGatewayProxyEvent): Promise<A
         ContactId: contactId,
         UserEmail: currentEmail,
       });
+      await SendContactEmail(itemData);
 
       return HttpResponses.created({ UserA: user, UserB: null, contactAlreadyExists: false });
     }
