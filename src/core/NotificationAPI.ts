@@ -80,11 +80,11 @@ export async function SendTransactionUpdate(
   });
 }
 
-export async function SendContactEmail(itemData
+export async function SendContactEmail(contactEmail, contactReceiptAmount, loggedInUsername
 ) {
-  const userID = itemData.personEmail;
-  const contactName = itemData.loggedInUsername;
-  const contactOwing = itemData.personReceiptAmount;
+  const userID = contactEmail;
+  const contactName = loggedInUsername;
+  const contactOwing = contactReceiptAmount;
   console.log("the things?", userID, contactName, contactOwing),
   await notificationapi.send({
     notificationId: "contactemail",

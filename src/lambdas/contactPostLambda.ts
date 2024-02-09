@@ -1,21 +1,35 @@
 import { v4 as uuidv4 } from "uuid";
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context,
+} from "aws-lambda";
 import { createContact, deleteContact } from "../core";
-import { CognitoIdentityProvider, ListUsersCommandInput, ListUsersCommandOutput } from "@aws-sdk/client-cognito-identity-provider";
+import {
+  CognitoIdentityProvider,
+  ListUsersCommandInput,
+  ListUsersCommandOutput,
+} from "@aws-sdk/client-cognito-identity-provider";
 import { HttpResponses } from "../http/utils";
 import { handlerFactory } from "../http/handler";
 import { getExistingContactByEmail } from "../database/contacts";
 import { SendUserAdd, SendContactEmail } from "../core/NotificationAPI";
-import pino from 'pino';
+import pino from "pino";
 
 const logger = pino();
-const cognitoIdentityProvider = new CognitoIdentityProvider({ region: "us-east-1" });
+const cognitoIdentityProvider = new CognitoIdentityProvider({
+  region: "us-east-1",
+});
 
-async function listUsers(command: ListUsersCommandInput): Promise<ListUsersCommandOutput> {
+async function listUsers(
+  command: ListUsersCommandInput
+): Promise<ListUsersCommandOutput> {
   return cognitoIdentityProvider.listUsers(command);
 }
 
-export async function postContactHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function postContactHandler(
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
   try {
     if (!event.body) {
       return HttpResponses.badRequest("Invalid request. Body is missing.");
@@ -28,8 +42,14 @@ export async function postContactHandler(event: APIGatewayProxyEvent): Promise<A
     const userPoolId = "us-east-1_whmGZCnxe";
     const filter = `email = "${itemData.Email}"`;
     const filterCurrent = `email = "${currentEmail}"`;
-    const listUsersCommand: ListUsersCommandInput = { UserPoolId: userPoolId, Filter: filter };
-    const listCurrentCommand: ListUsersCommandInput = { UserPoolId: userPoolId, Filter: filterCurrent };
+    const listUsersCommand: ListUsersCommandInput = {
+      UserPoolId: userPoolId,
+      Filter: filter,
+    };
+    const listCurrentCommand: ListUsersCommandInput = {
+      UserPoolId: userPoolId,
+      Filter: filterCurrent,
+    };
 
     try {
       const users = await listUsers(listUsersCommand);
@@ -45,7 +65,10 @@ export async function postContactHandler(event: APIGatewayProxyEvent): Promise<A
       const users = await listUsers(listCurrentCommand);
       if (users?.Users && users.Users.length > 0) {
         existingCurrent = users.Users[0];
-        logger.info("Found existing current user in Cognito:", existingCurrent.Username);
+        logger.info(
+          "Found existing current user in Cognito:",
+          existingCurrent.Username
+        );
       }
     } catch (error) {
       logger.error("Error querying Cognito for current user:", error);
@@ -54,17 +77,23 @@ export async function postContactHandler(event: APIGatewayProxyEvent): Promise<A
 
     if (existingUser) {
       const contactId = existingUser.Username;
-      const existingContactInDB = await getExistingContactByEmail(itemData.Email, currentEmail);
+      const existingContactInDB = await getExistingContactByEmail(
+        itemData.Email,
+        currentEmail
+      );
       const oppositeOwing = -parseFloat(itemData.Owing);
 
       const userA = await createContact({
         ...itemData,
         UserEmail: currentEmail,
         ContactId: contactId,
-        Owing: existingContactInDB ? -(
-          parseFloat(existingContactInDB.Owing) -
-          parseFloat(itemData.Owing)
-        ).toString() || itemData.Owing || "0.00" : itemData.Owing
+        Owing: existingContactInDB
+          ? -(
+              parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing)
+            ).toString() ||
+            itemData.Owing ||
+            "0.00"
+          : itemData.Owing,
       });
 
       logger.info("Processed userA creation:", userA);
@@ -85,7 +114,10 @@ export async function postContactHandler(event: APIGatewayProxyEvent): Promise<A
         await SendUserAdd(itemData);
         return HttpResponses.created({ UserA: userA, UserB: userB });
       } else {
-        await deleteContact(existingContactInDB.ContactId, existingContactInDB.UserEmail);
+        await deleteContact(
+          existingContactInDB.ContactId,
+          existingContactInDB.UserEmail
+        );
         const userB = await createContact({
           Email: currentEmail,
           Name: existingContactInDB.Name,
@@ -93,10 +125,16 @@ export async function postContactHandler(event: APIGatewayProxyEvent): Promise<A
           UserEmail: existingContactInDB.UserEmail,
           ContactId: existingCurrent.Username,
           Phone: existingContactInDB.Phone,
-          Owing: (parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing)).toString(),
+          Owing: (
+            parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing)
+          ).toString(),
         });
 
-        return HttpResponses.created({ UserA: userA, UserB: "updated", contactAlreadyExists: true });
+        return HttpResponses.created({
+          UserA: userA,
+          UserB: "updated",
+          contactAlreadyExists: true,
+        });
       }
     } else {
       const contactId = uuidv4();
@@ -105,9 +143,21 @@ export async function postContactHandler(event: APIGatewayProxyEvent): Promise<A
         ContactId: contactId,
         UserEmail: currentEmail,
       });
-      await SendContactEmail(itemData);
+      const contactEmail = itemData.Email;
+      const contactReceiptAmount = itemData.Owing;
+      const loggedInUsername = itemData.UserName;
 
-      return HttpResponses.created({ UserA: user, UserB: null, contactAlreadyExists: false });
+      await SendContactEmail(
+        contactEmail,
+        contactReceiptAmount,
+        loggedInUsername
+      );
+
+      return HttpResponses.created({
+        UserA: user,
+        UserB: null,
+        contactAlreadyExists: false,
+      });
     }
   } catch (error) {
     logger.error("Error processing request:", error);
@@ -115,8 +165,13 @@ export async function postContactHandler(event: APIGatewayProxyEvent): Promise<A
   }
 }
 
-export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> => {
   logger.info(`Executing ${event.httpMethod} request for path ${event.path}`);
   logger.info(`Request Event: ${JSON.stringify(event)}`);
-  return await handlerFactory().addHandler("POST", postContactHandler).execute(event);
+  return await handlerFactory()
+    .addHandler("POST", postContactHandler)
+    .execute(event);
 };
