@@ -63,12 +63,27 @@ export async function postContactHandler(
 
     try {
       const users = await listUsers(listCurrentCommand);
-      if (users?.Users && users.Users.length > 0) {
-        existingCurrent = users.Users[0];
-        logger.info(
-          "Found existing current user in Cognito:",
-          existingCurrent.Username
-        );
+      if (itemData.Email === itemData.UserEmail) {
+        logger.info("Found yourself", itemData.Email, itemData.UserEmail);
+        const contactId = uuidv4();
+        const userA = await createContact({
+          ...itemData,
+          ContactId: existingUser.Username,
+        });
+        logger.info("Processed userA creation:", userA);
+        return HttpResponses.created({
+          UserA: userA,
+          UserB: null,
+          contactAlreadyExists: false,
+        });
+      } else {
+        if (users?.Users && users.Users.length > 0) {
+          existingCurrent = users.Users[0];
+          logger.info(
+            "Found existing current user in Cognito:",
+            existingCurrent.Username
+          );
+        }
       }
     } catch (error) {
       logger.error("Error querying Cognito for current user:", error);
