@@ -101,16 +101,16 @@ export async function getContact(
   ContactId: string,
   UserEmail: string
 ): Promise<Contact | null> {
-  const params = {
-    TableName,
-    KeyConditionExpression: "ContactId = :contactId AND UserEmail = :userEmail",
-    ExpressionAttributeValues: {
-      ":contactId": ContactId,
-      ":userEmail": UserEmail,
-    },
-  };
-
   try {
+    const params = {
+      TableName,
+      KeyConditionExpression:
+        "ContactId = :contactId AND UserEmail = :userEmail",
+      ExpressionAttributeValues: {
+        ":contactId": ContactId,
+        ":userEmail": UserEmail,
+      },
+    };
     const command = new QueryCommand(params);
     const data: QueryCommandOutput = await docClient.send(command);
 
@@ -124,15 +124,16 @@ export async function getContact(
   }
 }
 
-
 export async function getExistingContactByEmail(
   Email: string,
   UserEmail: string
 ): Promise<Contact | null> {
-  const params = {
+  
+  try {
+    const params = {
     TableName,
     IndexName: "UserEmail-Email-Index",
-    KeyConditionExpression: "UserEmail = :userEmail AND Email = :email",  
+    KeyConditionExpression: "UserEmail = :userEmail AND Email = :email",
     ExpressionAttributeValues: {
       ":userEmail": Email,
       ":email": UserEmail,
@@ -141,7 +142,6 @@ export async function getExistingContactByEmail(
 
   console.log("getExistingContactByEmail Parameters:", params);
 
-  try {
     const command = new QueryCommand(params);
     const data: QueryCommandOutput = await docClient.send(command);
 

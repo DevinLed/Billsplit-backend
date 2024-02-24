@@ -12,16 +12,6 @@ export class DynamoLayer extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    /**
-     * Transactions Table
-     * TransactionId (PK) | PayerId | DebtorId | TransactionItems
-     *
-     * PayerId-Index
-     * PayerId (PK) | TransactionId | DebtorId | TransactionItems
-     *
-     * DebtorId-Index
-     * DebtorId (PK) | PayerId | TransactionId | TransactionItems
-     */
     this.tableTransactions = new dynamodb.Table(this, "TransactionsTable", {
       tableName: "Transactions",
       partitionKey: {
@@ -56,10 +46,7 @@ export class DynamoLayer extends cdk.Stack {
       DebtorId: dynamodb.AttributeType.STRING,
     });
 
-    /**
-     * Contact Table
-     * ContactId (PK) | Name | Email | Phone
-     */
+    
     this.tableContacts = new dynamodb.Table(this, "ContactsTable", {
       tableName: "Contacts",
       partitionKey: {
