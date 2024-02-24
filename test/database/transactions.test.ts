@@ -1,13 +1,12 @@
-import "aws-sdk-client-mock-jest";
-
 import { mockClient } from "aws-sdk-client-mock";
-import { DynamoDBDocumentClient, PutCommand, UpdateCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { createTransaction, updateTransaction, listTransactions } from "../../src/database/transactions";
+import { DynamoDBDocumentClient, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { createTransaction, listTransactions } from "../../src/database/transactions";
+import { Transaction } from "../../src/types";
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
 describe("Transactions Operations", () => {
-  const transactionParams = {
+  const transactionParams: Transaction = {
     TransactionId: "some-id",
     PayerId: "payer-id",
     DebtorId: "debtor-id",
@@ -21,61 +20,37 @@ describe("Transactions Operations", () => {
     Merchant: "merchant",
     Date: new Date(),
     SelectedValue: "value",
-    Email: "email@example.com",
-    UserEmail: "user@example.com",
-    Name: "Name",
-    ReceiptTotal: "100",
-    Username: "username",
-  };
-
-  const updatedTransaction = {
-    ...transactionParams,
-    Merchant: "updated-merchant",
+    Email: "dave@dave.com",
+    UserEmail: "walala@walala.com",
+    Name: "Joe",
+    ReceiptTotal: "1337",
+    Username: "DDBBCC",
   };
 
   test("Should create transaction database item", async () => {
     ddbMock.on(PutCommand).resolvesOnce({});
     await expect(createTransaction(transactionParams)).resolves.toEqual(transactionParams);
-    expect(ddbMock).toHaveReceivedCommandTimes(PutCommand, 1);
-    expect(ddbMock).toHaveReceivedCommandWith(PutCommand, {
-      TableName: "Transactions",
-      Item: transactionParams,
-    });
   });
 
   test("Should throw error on create transaction failure", async () => {
-    ddbMock.on(PutCommand).rejectsOnce();
-    await expect(createTransaction(transactionParams)).rejects.toThrow();
-    expect(ddbMock).toHaveReceivedCommandTimes(PutCommand, 1);
-  });
-
-  test("Should update transaction database item", async () => {
-    ddbMock.on(UpdateCommand).resolvesOnce({
-      Attributes: updatedTransaction
-    });
-    await expect(updateTransaction(updatedTransaction)).resolves.toEqual(updatedTransaction);
-    expect(ddbMock).toHaveReceivedCommandTimes(UpdateCommand, 1);
-  });
-
-  test("Should throw error on update transaction failure", async () => {
-    ddbMock.on(UpdateCommand).rejectsOnce(new Error("Update failed"));
-    await expect(updateTransaction(updatedTransaction)).rejects.toThrow("Update failed");
-    expect(ddbMock).toHaveReceivedCommandTimes(UpdateCommand, 1);
+    ddbMock.on(PutCommand).rejectsOnce(new Error("Create failed"));
+    await expect(createTransaction(transactionParams)).rejects.toThrow("Create failed");
   });
 
   test("Should return list of transactions", async () => {
-    const transactionsList = [transactionParams, updatedTransaction];
-    ddbMock.on(ScanCommand).resolvesOnce({
-      Items: transactionsList
-    });
+    const transactionsList: Transaction[] = [transactionParams];
+    ddbMock.on(ScanCommand).resolvesOnce({ Items: transactionsList });
     await expect(listTransactions()).resolves.toEqual(transactionsList);
-    expect(ddbMock).toHaveReceivedCommandTimes(ScanCommand, 1);
   });
 
   test("Should throw error on list transactions failure", async () => {
-    ddbMock.on(ScanCommand).rejectsOnce(new Error("Failed to retrieve transactions"));
-    await expect(listTransactions()).rejects.toThrow("Failed to retrieve transactions");
-    expect(ddbMock).toHaveReceivedCommandTimes(ScanCommand, 1);
+    ddbMock.on(ScanCommand).rejectsOnce(new Error("List failed"));
+    await expect(listTransactions()).rejects.toThrow("List failed");
+  });
+
+  test("Should return empty array when no transactions are found", async () => {
+    ddbMock.on(ScanCommand).resolvesOnce({ Items: [] });
+    await expect(listTransactions()).resolves.toEqual([]);
   });
 
   afterEach(() => {

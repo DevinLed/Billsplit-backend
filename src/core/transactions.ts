@@ -11,13 +11,6 @@ export async function createTransaction(transaction: Transaction): Promise<Trans
     }
 }
 
-export async function updateTransaction(transaction: Transaction): Promise<Transaction> {
-    try {
-        return await db.updateTransaction(transaction);
-    } catch (error) {
-        throw error;
-    }
-}
 export async function listTransactions(): Promise<Transaction[]> {
   try {
       return await db.listTransactions();
