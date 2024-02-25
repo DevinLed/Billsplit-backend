@@ -8,7 +8,7 @@ import { createContact, deleteContact } from "../core";
 import {
   CognitoIdentityProvider,
   ListUsersCommandInput,
-  ListUsersCommandOutput,
+  UserType,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { HttpResponses } from "../http/utils";
 import { handlerFactory } from "../http/handler";
@@ -23,79 +23,68 @@ const cognitoIdentityProvider = new CognitoIdentityProvider({
 
 async function listUsers(
   command: ListUsersCommandInput
-): Promise<ListUsersCommandOutput> {
-  return cognitoIdentityProvider.listUsers(command);
+): Promise<UserType[]> {
+  try {
+    const response = await cognitoIdentityProvider.listUsers(command);
+    return response.Users ?? [];
+  } catch (error) {
+    logger.error("Error querying Cognito:", error);
+    throw new Error("Failed to query Cognito.");
+  }
 }
 
 export async function postContactHandler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
+  if (!event.body) {
+    return HttpResponses.badRequest("Invalid request. Body is missing.");
+  }
+
+  const itemData = JSON.parse(event.body);
+  const userPoolId = "us-east-1_whmGZCnxe";
+  const currentEmail = itemData.UserEmail;
+  const targetUserFilter = `email = "${itemData.Email}"`;
+  const currentUserFilter = `email = "${currentEmail}"`;
+
+  let existingUser: UserType | null = null;
+  let existingCurrent: UserType | null = null;
+
   try {
-    if (!event.body) {
-      return HttpResponses.badRequest("Invalid request. Body is missing.");
-    }
-
-    const itemData = JSON.parse(event.body);
-    let existingUser;
-    let existingCurrent;
-    const currentEmail = itemData.UserEmail;
-    const userPoolId = "us-east-1_whmGZCnxe";
-    const filter = `email = "${itemData.Email}"`;
-    const filterCurrent = `email = "${currentEmail}"`;
-    const listUsersCommand: ListUsersCommandInput = {
+    const targetUsers = await listUsers({
       UserPoolId: userPoolId,
-      Filter: filter,
-    };
-    const listCurrentCommand: ListUsersCommandInput = {
+      Filter: targetUserFilter,
+    });
+    existingUser = targetUsers[0] ?? null;
+
+    const currentUsers = await listUsers({
       UserPoolId: userPoolId,
-      Filter: filterCurrent,
-    };
+      Filter: currentUserFilter,
+    });
+    existingCurrent = currentUsers[0] ?? null;
+  } catch (error) {
+    logger.error("Error querying Cognito:", error);
+    return HttpResponses.internalServerError("Internal Server Error");
+  }
 
-    try {
-      const users = await listUsers(listUsersCommand);
-      if (users?.Users && users.Users.length > 0) {
-        existingUser = users.Users[0];
-      }
-    } catch (error) {
-      logger.error("Error querying Cognito for target user:", error);
-      return HttpResponses.internalServerError("Internal Server Error");
+  try {
+    if (itemData.Email === currentEmail) {
+      logger.info("Found yourself", itemData.Email, currentEmail);
+      const contactId = uuidv4();
+      const userA = await createContact({
+        ...itemData,
+        ContactId: contactId,
+      });
+      logger.info("Processed userA creation:", userA);
+      return HttpResponses.created({
+        UserA: userA,
+        UserB: null,
+        contactAlreadyExists: false,
+      });
     }
 
-    try {
-      const users = await listUsers(listCurrentCommand);
-      if (itemData.Email === itemData.UserEmail) {
-        logger.info("Found yourself", itemData.Email, itemData.UserEmail);
-        const contactId = uuidv4();
-        const userA = await createContact({
-          ...itemData,
-          ContactId: existingUser.Username,
-        });
-        logger.info("Processed userA creation:", userA);
-        return HttpResponses.created({
-          UserA: userA,
-          UserB: null,
-          contactAlreadyExists: false,
-        });
-      } else {
-        if (users?.Users && users.Users.length > 0) {
-          existingCurrent = users.Users[0];
-          logger.info(
-            "Found existing current user in Cognito:",
-            existingCurrent.Username
-          );
-        }
-      }
-    } catch (error) {
-      logger.error("Error querying Cognito for current user:", error);
-      return HttpResponses.internalServerError("Internal Server Error");
-    }
-
-    if (existingUser) {
-      const contactId = existingUser.Username;
-      const existingContactInDB = await getExistingContactByEmail(
-        itemData.Email,
-        currentEmail
-      );
+    if (existingUser && existingCurrent) {
+      const contactId = existingUser.Username ?? uuidv4();
+      const existingContactInDB = await getExistingContactByEmail(itemData.Email, currentEmail);
       const oppositeOwing = -parseFloat(itemData.Owing);
 
       const userA = await createContact({
@@ -103,54 +92,31 @@ export async function postContactHandler(
         UserEmail: currentEmail,
         ContactId: contactId,
         Owing: existingContactInDB
-          ? -(
-              parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing)
-            ).toString() ||
-            itemData.Owing ||
-            "0.00"
+          ? (-(parseFloat(existingContactInDB.Owing) + parseFloat(itemData.Owing))).toString()
           : itemData.Owing,
       });
 
-      logger.info("Processed userA creation:", userA);
-
+      let userBResponse;
       if (!existingContactInDB) {
-        const userB = await createContact({
+        userBResponse = await createContact({
           Email: currentEmail,
           Name: itemData.UserName,
           UserName: itemData.Name,
           UserEmail: itemData.Email,
-          ContactId: existingCurrent.Username,
+          ContactId: existingCurrent?.Username ?? uuidv4(),
           Phone: "Enter phone #",
-          Owing: oppositeOwing.toString() || "0.00",
+          Owing: oppositeOwing.toString(),
         });
-
-        logger.info("Processed userB creation:", userB);
-
-        await SendUserAdd(itemData);
-        return HttpResponses.created({ UserA: userA, UserB: userB });
       } else {
-        await deleteContact(
-          existingContactInDB.ContactId,
-          existingContactInDB.UserEmail
-        );
-        const userB = await createContact({
-          Email: currentEmail,
-          Name: existingContactInDB.Name,
-          UserName: existingContactInDB.UserName,
-          UserEmail: existingContactInDB.UserEmail,
-          ContactId: existingCurrent.Username,
-          Phone: existingContactInDB.Phone,
-          Owing: (
-            parseFloat(existingContactInDB.Owing) - parseFloat(itemData.Owing)
-          ).toString(),
-        });
-
-        return HttpResponses.created({
-          UserA: userA,
-          UserB: "updated",
-          contactAlreadyExists: true,
-        });
+        await deleteContact(existingContactInDB.ContactId, existingContactInDB.UserEmail);
+        userBResponse = "updated";
       }
+
+      return HttpResponses.created({
+        UserA: userA,
+        UserB: userBResponse,
+        contactAlreadyExists: !!existingContactInDB,
+      });
     } else {
       const contactId = uuidv4();
       const user = await createContact({
@@ -158,15 +124,8 @@ export async function postContactHandler(
         ContactId: contactId,
         UserEmail: currentEmail,
       });
-      const contactEmail = itemData.Email;
-      const contactReceiptAmount = itemData.Owing;
-      const loggedInUsername = itemData.UserName;
 
-      await SendContactEmail(
-        contactEmail,
-        contactReceiptAmount,
-        loggedInUsername
-      );
+      await SendContactEmail(itemData.Email, itemData.Owing, itemData.UserName);
 
       return HttpResponses.created({
         UserA: user,
@@ -175,7 +134,7 @@ export async function postContactHandler(
       });
     }
   } catch (error) {
-    logger.error("Error processing request:", error);
+    logger.error("Error processing contact creation:", error);
     return HttpResponses.internalServerError("Internal Server Error");
   }
 }
@@ -186,7 +145,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   logger.info(`Executing ${event.httpMethod} request for path ${event.path}`);
   logger.info(`Request Event: ${JSON.stringify(event)}`);
-  return await handlerFactory()
+  return handlerFactory()
     .addHandler("POST", postContactHandler)
     .execute(event);
 };
