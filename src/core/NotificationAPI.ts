@@ -1,21 +1,17 @@
 import notificationapi from "notificationapi-node-server-sdk";
-const logger = require('pino')()
+const logger = require('pino')();
 require("dotenv").config();
+import { Contact, Transaction } from '../types'; 
 
 const napiClientID = process.env.NOTIFICATIONAPI_CLIENT_ID!;
 const napiClientSecret = process.env.NOTIFICATIONAPI_CLIENT_SECRET!;
 
-
 notificationapi.init(napiClientID, napiClientSecret);
 
-// notificationapi.retract({
-
-// })
-
-export async function SendUserAdd(itemData) {
+export async function SendUserAdd(itemData: Contact) {
   const userID = itemData.Email;
   const contactName = itemData.UserName;
-  const contactOwing = itemData.Owing;
+  const contactOwing = itemData.Owing.toString();
   let message;
   if (parseFloat(contactOwing) < 0) {
     message = "set their owing amount to";
@@ -38,10 +34,11 @@ export async function SendUserAdd(itemData) {
     },
   });
 }
-export async function SendUserUpdate(itemData) {
+
+export async function SendUserUpdate(itemData: Contact) {
   const userID = itemData.Email;
   const contactName = itemData.UserName;
-  const contactOwing = itemData.Owing;
+  const contactOwing = itemData.Owing.toString();
   await notificationapi.send({
     notificationId: "user_updated",
     templateId: "default",
@@ -58,9 +55,9 @@ export async function SendUserUpdate(itemData) {
 }
 
 export async function SendTransactionUpdate(
-  personEmail,
-  personReceiptAmount,
-  loggedInUsername
+  personEmail: string,
+  personReceiptAmount: string,
+  loggedInUsername: string
 ) {
   const userID = personEmail;
   const contactName = loggedInUsername;
@@ -80,12 +77,14 @@ export async function SendTransactionUpdate(
   });
 }
 
-export async function SendContactEmail(contactEmail, contactReceiptAmount, loggedInUsername
+export async function SendContactEmail(
+  contactEmail: string,
+  contactReceiptAmount: string,
+  loggedInUsername: string
 ) {
   const userID = contactEmail;
   const contactName = loggedInUsername;
   const contactOwing = contactReceiptAmount;
-  console.log("the things?", userID, contactName, contactOwing),
   await notificationapi.send({
     notificationId: "contactemail",
     templateId: "default",
@@ -100,4 +99,3 @@ export async function SendContactEmail(contactEmail, contactReceiptAmount, logge
     },
   });
 }
-
