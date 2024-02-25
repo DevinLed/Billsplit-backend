@@ -11,3 +11,4 @@ deployment.zip
 cdk.out
 
 .env
+coverage

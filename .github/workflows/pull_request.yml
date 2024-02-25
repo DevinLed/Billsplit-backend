@@ -1,0 +1,33 @@
+name: Pull Request
+
+on:
+  push:
+    branches:
+      - '*'
+    # Run only if the push is not to the master branch
+      - '!master'
+  pull_request:
+    branches:
+      - '*'
+    # Run only if the pull request is not from the master branch
+      - '!master'
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Tests
+      run: npm test
