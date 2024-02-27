@@ -6,6 +6,23 @@
 
 **Divvy Backend** serves as the backbone for the Divvy expense-splitting application, handling all server-side logic and database interactions. It ensures secure and efficient management of user data, expenses, and receipts, supporting the seamless functionality of the Divvy app.
 
+## Sample:
+<div align="center" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+  <div>
+    <img src="/src/img/AppHome.jpg" alt="" width="300">
+  </div>
+  <div>
+    <img src="/src/img/ReceiptSubmit.jpg" alt="" width="300">
+  </div>
+  <div>
+    <img src="/src/img/History.jpg" alt="" width="300">
+  </div>
+  <div>
+    <img src="/src/img/NotiAPI.jpg" alt="" width="300">
+  </div>
+</div>
+
+
 ## Features
 
 - **User Authentication:** Securely manage user sessions and protect personal information using AWS Cognito.
