@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1708901859085" clover="3.2.0">
-  <project timestamp="1708901859086" name="All files">
-    <metrics statements="334" coveredstatements="295" conditionals="51" coveredconditionals="32" methods="47" coveredmethods="35" elements="432" coveredelements="362" complexity="0" loc="334" ncloc="334" packages="4" files="11" classes="11"/>
+<coverage generated="1709176892838" clover="3.2.0">
+  <project timestamp="1709176892838" name="All files">
+    <metrics statements="389" coveredstatements="331" conditionals="56" coveredconditionals="33" methods="52" coveredmethods="42" elements="497" coveredelements="406" complexity="0" loc="389" ncloc="389" packages="4" files="13" classes="13"/>
     <package name="core">
-      <metrics statements="69" coveredstatements="63" conditionals="2" coveredconditionals="1" methods="13" coveredmethods="12"/>
+      <metrics statements="69" coveredstatements="57" conditionals="2" coveredconditionals="0" methods="13" coveredmethods="11"/>
       <file name="NotificationAPI.ts" path="C:\Users\ledy_\Documents\GetCoding\Billsplit-backend\src\core\NotificationAPI.ts">
-        <metrics statements="29" coveredstatements="23" conditionals="2" coveredconditionals="1" methods="4" coveredmethods="3"/>
-        <line num="1" count="3" type="stmt"/>
-        <line num="2" count="3" type="stmt"/>
-        <line num="3" count="3" type="stmt"/>
-        <line num="6" count="3" type="stmt"/>
-        <line num="7" count="3" type="stmt"/>
-        <line num="9" count="3" type="stmt"/>
-        <line num="11" count="3" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="13" count="1" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
-        <line num="16" count="1" type="cond" truecount="1" falsecount="1"/>
+        <metrics statements="29" coveredstatements="17" conditionals="2" coveredconditionals="0" methods="4" coveredmethods="2"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="16" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="17" count="0" type="stmt"/>
-        <line num="19" count="1" type="stmt"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="38" count="3" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
         <line num="39" count="1" type="stmt"/>
         <line num="40" count="1" type="stmt"/>
         <line num="41" count="1" type="stmt"/>
         <line num="42" count="0" type="stmt"/>
-        <line num="57" count="3" type="stmt"/>
+        <line num="57" count="2" type="stmt"/>
         <line num="62" count="0" type="stmt"/>
         <line num="63" count="0" type="stmt"/>
         <line num="64" count="0" type="stmt"/>
         <line num="65" count="0" type="stmt"/>
-        <line num="80" count="3" type="stmt"/>
+        <line num="80" count="2" type="stmt"/>
         <line num="85" count="1" type="stmt"/>
         <line num="86" count="1" type="stmt"/>
         <line num="87" count="1" type="stmt"/>
@@ -179,49 +179,49 @@
       </file>
     </package>
     <package name="http">
-      <metrics statements="33" coveredstatements="22" conditionals="6" coveredconditionals="3" methods="16" coveredmethods="6"/>
+      <metrics statements="33" coveredstatements="26" conditionals="6" coveredconditionals="4" methods="16" coveredmethods="10"/>
       <file name="handler.ts" path="C:\Users\ledy_\Documents\GetCoding\Billsplit-backend\src\http\handler.ts">
         <metrics statements="11" coveredstatements="10" conditionals="2" coveredconditionals="1" methods="4" coveredmethods="4"/>
-        <line num="6" count="4" type="stmt"/>
-        <line num="14" count="5" type="stmt"/>
-        <line num="21" count="5" type="stmt"/>
-        <line num="22" count="5" type="stmt"/>
-        <line num="28" count="7" type="stmt"/>
-        <line num="29" count="7" type="cond" truecount="1" falsecount="1"/>
-        <line num="30" count="7" type="stmt"/>
+        <line num="6" count="6" type="stmt"/>
+        <line num="14" count="7" type="stmt"/>
+        <line num="21" count="7" type="stmt"/>
+        <line num="22" count="7" type="stmt"/>
+        <line num="28" count="10" type="stmt"/>
+        <line num="29" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="30" count="10" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
-        <line num="39" count="7" type="stmt"/>
-        <line num="41" count="7" type="stmt"/>
-        <line num="45" count="5" type="stmt"/>
+        <line num="39" count="10" type="stmt"/>
+        <line num="41" count="10" type="stmt"/>
+        <line num="45" count="7" type="stmt"/>
       </file>
       <file name="utils.ts" path="C:\Users\ledy_\Documents\GetCoding\Billsplit-backend\src\http\utils.ts">
-        <metrics statements="22" coveredstatements="12" conditionals="4" coveredconditionals="2" methods="12" coveredmethods="2"/>
-        <line num="3" count="1" type="cond" truecount="2" falsecount="0"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="7" count="1" type="stmt"/>
-        <line num="8" count="1" type="stmt"/>
-        <line num="9" count="1" type="stmt"/>
-        <line num="10" count="1" type="stmt"/>
-        <line num="11" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
+        <metrics statements="22" coveredstatements="16" conditionals="4" coveredconditionals="3" methods="12" coveredmethods="6"/>
+        <line num="3" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="4" count="3" type="stmt"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="6" count="3" type="stmt"/>
+        <line num="7" count="3" type="stmt"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="10" count="3" type="stmt"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="15" count="3" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
         <line num="34" count="2" type="stmt"/>
         <line num="42" count="0" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
         <line num="58" count="0" type="stmt"/>
-        <line num="66" count="0" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
         <line num="74" count="0" type="stmt"/>
         <line num="82" count="0" type="stmt"/>
         <line num="90" count="0" type="stmt"/>
-        <line num="98" count="0" type="stmt"/>
-        <line num="106" count="1" type="stmt"/>
+        <line num="98" count="1" type="stmt"/>
+        <line num="106" count="3" type="stmt"/>
       </file>
     </package>
     <package name="lambdas">
-      <metrics statements="146" coveredstatements="125" conditionals="31" coveredconditionals="19" methods="9" coveredmethods="8"/>
+      <metrics statements="201" coveredstatements="163" conditionals="36" coveredconditionals="20" methods="14" coveredmethods="12"/>
       <file name="contactDeleteLambda.ts" path="C:\Users\ledy_\Documents\GetCoding\Billsplit-backend\src\lambdas\contactDeleteLambda.ts">
         <metrics statements="30" coveredstatements="30" conditionals="1" coveredconditionals="1" methods="2" coveredmethods="2"/>
         <line num="6" count="1" type="stmt"/>
@@ -379,6 +379,67 @@
         <line num="70" count="1" type="stmt"/>
         <line num="74" count="0" type="stmt"/>
         <line num="75" count="0" type="stmt"/>
+      </file>
+      <file name="transactionGetLambda.ts" path="C:\Users\ledy_\Documents\GetCoding\Billsplit-backend\src\lambdas\transactionGetLambda.ts">
+        <metrics statements="17" coveredstatements="17" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+      </file>
+      <file name="transactionPostLambda.ts" path="C:\Users\ledy_\Documents\GetCoding\Billsplit-backend\src\lambdas\transactionPostLambda.ts">
+        <metrics statements="38" coveredstatements="21" conditionals="5" coveredconditionals="1" methods="3" coveredmethods="2"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="42" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="62" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="63" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="82" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="102" count="1" type="stmt"/>
+        <line num="103" count="1" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+        <line num="109" count="1" type="stmt"/>
       </file>
     </package>
   </project>
