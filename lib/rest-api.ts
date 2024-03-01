@@ -2,7 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { LambdaLayer } from "./lambda";
 
-interface RestApiLayerProps {
+export interface RestApiLayerProps {
   lambdas: LambdaLayer;
 }
 
