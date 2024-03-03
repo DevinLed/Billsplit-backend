@@ -2,7 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { LambdaLayer } from "./lambda";
 
-interface RestApiLayerProps {
+export interface RestApiLayerProps {
   lambdas: LambdaLayer;
 }
 
@@ -37,10 +37,12 @@ export class RestApi extends Construct {
      */
     const contactResource = this.api.root.addResource("contacts");
     const contactIdResource = contactResource.addResource("{ContactId}");
-    const contactUserEmailResource = contactIdResource.addResource("{UserEmail}");
-    
+    const contactUserEmailResource =
+      contactIdResource.addResource("{UserEmail}");
+
     const transactionResource = this.api.root.addResource("transaction");
-    const transactionIdResource = transactionResource.addResource("{transactionId}")
+    const transactionIdResource =
+      transactionResource.addResource("{transactionId}");
 
     /**
      * Lambda Integrations
@@ -58,9 +60,12 @@ export class RestApi extends Construct {
       functionContactsDelete
     );
 
-    const transactionsGetLambda = new cdk.aws_apigateway.LambdaIntegration(functionTransactionsGet);
-    const transactionsPostLambda = new cdk.aws_apigateway.LambdaIntegration(functionTransactionsPost);
-
+    const transactionsGetLambda = new cdk.aws_apigateway.LambdaIntegration(
+      functionTransactionsGet
+    );
+    const transactionsPostLambda = new cdk.aws_apigateway.LambdaIntegration(
+      functionTransactionsPost
+    );
 
     /**
      * Resource Method Integrations
@@ -73,8 +78,8 @@ export class RestApi extends Construct {
     contactIdResource.addMethod("PUT", contactsPutLambda);
     contactIdResource.addMethod("DELETE", contactsDeleteLambda);
     contactUserEmailResource.addMethod("DELETE", contactsDeleteLambda);
-    transactionResource.addMethod("GET", transactionsGetLambda)
-    transactionResource.addMethod("POST", transactionsPostLambda)
+    transactionResource.addMethod("GET", transactionsGetLambda);
+    transactionResource.addMethod("POST", transactionsPostLambda);
     transactionIdResource.addMethod("GET", transactionsGetLambda);
     transactionIdResource.addMethod("POST", transactionsPostLambda);
   }

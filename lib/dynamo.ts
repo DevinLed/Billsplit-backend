@@ -1,12 +1,12 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
-import * as iam from "aws-cdk-lib/aws-iam"; 
+import * as iam from "aws-cdk-lib/aws-iam";
 
 export class DynamoLayer extends cdk.Stack {
   readonly tableTransactions: dynamodb.Table;
   readonly tableContacts: dynamodb.Table;
-  
+
   readonly tableContactsV2: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -23,20 +23,19 @@ export class DynamoLayer extends cdk.Stack {
     });
 
     this.tableTransactions.addGlobalSecondaryIndex({
-      indexName: 'PayerId-Index',
+      indexName: "PayerId-Index",
       partitionKey: {
-        name: 'PayerId',
-        type: dynamodb.AttributeType.STRING
+        name: "PayerId",
+        type: dynamodb.AttributeType.STRING,
       },
       projectionType: dynamodb.ProjectionType.ALL,
-      
     });
 
     this.tableTransactions.addGlobalSecondaryIndex({
-      indexName: 'DebtorId-Index',
+      indexName: "DebtorId-Index",
       partitionKey: {
-        name: 'DebtorId',
-        type: dynamodb.AttributeType.STRING
+        name: "DebtorId",
+        type: dynamodb.AttributeType.STRING,
       },
       projectionType: dynamodb.ProjectionType.ALL,
     });
@@ -46,7 +45,6 @@ export class DynamoLayer extends cdk.Stack {
       DebtorId: dynamodb.AttributeType.STRING,
     });
 
-    
     this.tableContacts = new dynamodb.Table(this, "ContactsTable", {
       tableName: "Contacts",
       partitionKey: {
@@ -89,19 +87,17 @@ export class DynamoLayer extends cdk.Stack {
       },
       projectionType: dynamodb.ProjectionType.ALL,
     });
-    
+
     const lambdaRole = new iam.Role(this, "LambdaRole", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
     });
-    
+
     this.tableContactsV2.grant(lambdaRole, "dynamodb:Query");
     this.tableContactsV2.node.addMetadata("attributeDefinitions", {
-      
       Name: dynamodb.AttributeType.STRING,
       Email: dynamodb.AttributeType.STRING,
       Phone: dynamodb.AttributeType.STRING,
       Owing: dynamodb.AttributeType.STRING,
     });
   }
-  
 }

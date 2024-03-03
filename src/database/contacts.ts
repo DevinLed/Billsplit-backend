@@ -128,9 +128,7 @@ export async function getExistingContactByEmail(
   Email: string,
   UserEmail: string
 ): Promise<Contact | null> {
-  
-  try {
-    const params = {
+  const params = {
     TableName,
     IndexName: "UserEmail-Email-Index",
     KeyConditionExpression: "UserEmail = :userEmail AND Email = :email",
@@ -142,6 +140,7 @@ export async function getExistingContactByEmail(
 
   console.log("getExistingContactByEmail Parameters:", params);
 
+  try {
     const command = new QueryCommand(params);
     const data: QueryCommandOutput = await docClient.send(command);
 
