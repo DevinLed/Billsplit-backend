@@ -1,15 +1,15 @@
-import { handler as getContactHandler } from '../../src/lambdas/contactGetLambda';
-import { APIGatewayProxyEvent } from 'aws-lambda';
-import * as contactsCore from '../../src/core/contacts';
+import { handler as getContactHandler } from "../../src/lambdas/contactGetLambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
+import * as contactsCore from "../../src/core/contacts";
 
-jest.mock('../../src/core/contacts', () => ({
+jest.mock("../../src/core/contacts", () => ({
   listContacts: jest.fn(),
 }));
 
-describe('getContactHandler Tests', () => {
+describe("getContactHandler Tests", () => {
   const createEvent = (overrides = {}): APIGatewayProxyEvent => ({
-    httpMethod: 'GET',
-    path: '/contacts',
+    httpMethod: "GET",
+    path: "/contacts",
     headers: {},
     multiValueHeaders: {},
     queryStringParameters: null,
@@ -17,15 +17,17 @@ describe('getContactHandler Tests', () => {
     pathParameters: {},
     stageVariables: null,
     requestContext: {} as any,
-    resource: '/contacts',
+    resource: "/contacts",
     body: null,
     isBase64Encoded: false,
     ...overrides,
   });
 
-  test('Should return contacts successfully', async () => {
-    const mockContacts = [{ id: '1', name: 'Test Contact' }];
-    (contactsCore.listContacts as jest.Mock).mockResolvedValueOnce(mockContacts);
+  test("Should return contacts successfully", async () => {
+    const mockContacts = [{ id: "1", name: "Test Contact" }];
+    (contactsCore.listContacts as jest.Mock).mockResolvedValueOnce(
+      mockContacts
+    );
 
     const event = createEvent();
     const context = {};
@@ -36,15 +38,17 @@ describe('getContactHandler Tests', () => {
     expect(contactsCore.listContacts).toHaveBeenCalled();
   });
 
-  test('Should handle error when fetching contacts fails', async () => {
-    (contactsCore.listContacts as jest.Mock).mockRejectedValueOnce(new Error('Internal Error'));
+  test("Should handle error when fetching contacts fails", async () => {
+    (contactsCore.listContacts as jest.Mock).mockRejectedValueOnce(
+      new Error("Internal Error")
+    );
 
     const event = createEvent();
     const context = {};
 
     const result = await getContactHandler(event, context as any);
     expect(result.statusCode).toEqual(500);
-    expect(JSON.parse(result.body).error).toEqual('Failed to fetch contacts.');
+    expect(JSON.parse(result.body).error).toEqual("Failed to fetch contacts.");
     expect(contactsCore.listContacts).toHaveBeenCalled();
   });
 });

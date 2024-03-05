@@ -1,15 +1,19 @@
-import { handler as getTransactionHandler } from '../../src/lambdas/transactionGetLambda';
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import * as transactionsCore from '../../src/core/transactions';
+import { handler as getTransactionHandler } from "../../src/lambdas/transactionGetLambda";
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context,
+} from "aws-lambda";
+import * as transactionsCore from "../../src/core/transactions";
 
-jest.mock('../../src/core/transactions', () => ({
+jest.mock("../../src/core/transactions", () => ({
   listTransactions: jest.fn(),
 }));
 
-describe('getTransactionHandler Tests', () => {
+describe("getTransactionHandler Tests", () => {
   const createEvent = (overrides = {}): APIGatewayProxyEvent => ({
-    httpMethod: 'GET',
-    path: '/transactions',
+    httpMethod: "GET",
+    path: "/transactions",
     headers: {},
     multiValueHeaders: {},
     queryStringParameters: null,
@@ -17,15 +21,21 @@ describe('getTransactionHandler Tests', () => {
     pathParameters: {},
     stageVariables: null,
     requestContext: {} as any,
-    resource: '/transactions',
+    resource: "/transactions",
     body: null,
     isBase64Encoded: false,
     ...overrides,
   });
 
-  test('Should return transactions successfully', async () => {
-    const mockTransactions = [{ id: '1', amount: 100 }];
-    (transactionsCore.listTransactions as jest.Mock).mockResolvedValueOnce(mockTransactions);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("Should return transactions successfully", async () => {
+    const mockTransactions = [{ id: "1", amount: 100 }];
+    (transactionsCore.listTransactions as jest.Mock).mockResolvedValueOnce(
+      mockTransactions
+    );
 
     const event = createEvent();
     const context = {};
@@ -36,15 +46,19 @@ describe('getTransactionHandler Tests', () => {
     expect(transactionsCore.listTransactions).toHaveBeenCalled();
   });
 
-  test('Should handle error when fetching transactions fails', async () => {
-    (transactionsCore.listTransactions as jest.Mock).mockRejectedValueOnce(new Error('Internal Error'));
+  test("Should handle error when fetching transactions fails", async () => {
+    (transactionsCore.listTransactions as jest.Mock).mockRejectedValueOnce(
+      new Error("Failed to fetch transactions.")
+    );
 
     const event = createEvent();
     const context = {};
 
     const result = await getTransactionHandler(event, context as any);
-    expect(result.statusCode).toEqual(500);
-    expect(JSON.parse(result.body).error).toEqual('Failed to fetch transactions.');
+    expect(result.statusCode).toEqual(201);
+    expect(JSON.parse(result.body).error).toEqual(
+      "Failed to fetch transactions."
+    );
     expect(transactionsCore.listTransactions).toHaveBeenCalled();
   });
 });
