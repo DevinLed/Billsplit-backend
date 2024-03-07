@@ -48,16 +48,16 @@ describe("getTransactionHandler Tests", () => {
 
   test("Should handle error when fetching transactions fails", async () => {
     (transactionsCore.listTransactions as jest.Mock).mockRejectedValueOnce(
-      new Error("Failed to fetch transactions.")
+      new Error("Error fetching transactions")
     );
 
     const event = createEvent();
     const context = {};
 
     const result = await getTransactionHandler(event, context as any);
-    expect(result.statusCode).toEqual(201);
+    expect(result.statusCode).toEqual(500);
     expect(JSON.parse(result.body).error).toEqual(
-      "Failed to fetch transactions."
+      "Error fetching transactions" 
     );
     expect(transactionsCore.listTransactions).toHaveBeenCalled();
   });

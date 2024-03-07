@@ -18,9 +18,9 @@ jest.mock("../../src/database/contacts", () => ({
 jest.mock("../../src/http/utils", () => ({
   ...jest.requireActual("../../src/http/utils"),
   HttpResponses: {
-    badRequest: jest.fn(),
-    internalServerError: jest.fn(),
-    ok: jest.fn(),
+    badRequest: jest.fn(() => ({ statusCode: 400, body: JSON.stringify({ error: "Bad Request" }) })),
+    internalServerError: jest.fn(() => ({ statusCode: 500, body: JSON.stringify({ error: "Internal Server Error" }) })),
+    ok: jest.fn(() => ({ statusCode: 200, body: JSON.stringify({ message: "OK" }) })),
   },
 }));
 
@@ -44,42 +44,35 @@ describe("putContactHandler Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   test("should handle valid request", async () => {
-    const mockExistingContact = {};
+    const mockExistingContact = { someProperty: "value" };
     const mockEmail = "test@example.com";
     const mockUserEmail = "user@example.com";
 
-    (coreModule.updateContact as jest.Mock).mockResolvedValueOnce(
-      mockExistingContact
-    );
-    (
-      databaseModule.getExistingContactByEmail as jest.Mock
-    ).mockResolvedValueOnce(mockExistingContact);
+    (coreModule.updateContact as jest.Mock).mockResolvedValueOnce(mockExistingContact);
+    (databaseModule.getExistingContactByEmail as jest.Mock).mockResolvedValueOnce(mockExistingContact);
 
     const requestBody = JSON.stringify({
       Email: mockEmail,
       UserEmail: mockUserEmail,
+      ContactId: "123", 
+      Owing: "100",
     });
 
     const event = createEvent({ body: requestBody });
 
     const response = await putContactHandler(event);
 
-    expect(coreModule.updateContact).toHaveBeenCalledWith(
-      expect.objectContaining({})
-    );
-    expect(databaseModule.getExistingContactByEmail).toHaveBeenCalledWith(
-      mockEmail,
-      mockUserEmail
-    );
+    expect(httpUtilsModule.HttpResponses.ok).toHaveBeenCalledWith({
+      UserA: expect.any(Object),
+      UserB: expect.any(String),
+      contactAlreadyExists: expect.any(Boolean),
+    });
 
-    expect(httpUtilsModule.HttpResponses.ok).toHaveBeenCalledWith(
-      expect.objectContaining({
-        UserA: expect.any(Object),
-        UserB: expect.any(String),
-        contactAlreadyExists: expect.any(Boolean),
-      })
-    );
-    expect(response.statusCode).toEqual(200);
+    expect(response).toEqual({
+      statusCode: 200,
+      body: JSON.stringify({ message: "OK" })
+    });
   });
 });

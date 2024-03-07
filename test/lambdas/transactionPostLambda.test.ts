@@ -15,7 +15,7 @@ jest.mock("../../src/core/NotificationAPI", () => ({
 }));
 
 describe("postTransactionHandler Tests", () => {
-  const createEvent = (overrides = {}): APIGatewayProxyEvent => ({
+  const createEvent = (bodyObj = {}, overrides = {}): APIGatewayProxyEvent => ({
     httpMethod: "POST",
     path: "/transaction",
     headers: {},
@@ -26,7 +26,7 @@ describe("postTransactionHandler Tests", () => {
     stageVariables: null,
     requestContext: {} as any,
     resource: "",
-    body: null,
+    body: JSON.stringify(bodyObj),
     isBase64Encoded: false,
     ...overrides,
   });
@@ -36,18 +36,20 @@ describe("postTransactionHandler Tests", () => {
   });
 
   test("should successfully create a transaction", async () => {
-    const event = createEvent();
+    const validRequestBody = {
+      someKey: "someValue",
+      anotherKey: "anotherValue",
+    };
+
+    const event = createEvent(validRequestBody);
     const context = {} as Context;
 
     (SendTransactionUpdate as jest.Mock).mockResolvedValueOnce({});
 
     const response = await postTransactionHandler(event, context);
 
-    expect(response.statusCode).toEqual(500);
-    expect(JSON.parse(response.body)).toHaveProperty(
-      "message",
-      "Transaction created successfully"
-    );
+    expect(response.statusCode).toEqual(201);
+    expect(JSON.parse(response.body)).toHaveProperty("message", "Transaction created successfully");
     expect(SendTransactionUpdate).toHaveBeenCalled();
   });
 });
