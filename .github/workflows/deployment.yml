@@ -29,6 +29,9 @@ jobs:
     - name: Bundle
       run: npm run bundle
 
+    - name: Debug
+      run: aws --version
+
     - name: Set AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
