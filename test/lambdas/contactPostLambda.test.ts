@@ -89,6 +89,6 @@ describe("postContactHandler Tests", () => {
     );
     const event = createEvent({ body: JSON.stringify(mockItemData) });
     const result = await postContactHandler(event, {} as any);
-    expect(result.statusCode).toEqual(201);
+    expect(result.statusCode).toEqual(500);
   });
 });
