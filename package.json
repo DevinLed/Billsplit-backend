@@ -6,11 +6,16 @@
   },
   "scripts": {
     "build": "ts-node scripts/buildLambdas.ts",
-    "clean": "del /Q deployment.zip",
-    "bundle": "powershell Compress-Archive dist deployment.zip",
+    "deploy": "cdk deploy --all",
+    "clean": "npm run clean:${process.platform}",
+    "clean:linux": "rm deployment.zip",
+    "clean:win32": "del /Q deployment.zip",
+    "bundle": "npm run bundle:${process.platform}",
+    "bundle:linux": "zip -r deployment.zip dist",
+    "bundle:win32": "powershell Compress-Archive dist deployment.zip",
     "pushup": "npm run build && npm run clean && npm run bundle",
     "watch": "tsc -w",
-    "test": "jest --collectCoverage --silent",
+    "test": "jest",
     "cdk": "cdk"
   },
   "devDependencies": {
